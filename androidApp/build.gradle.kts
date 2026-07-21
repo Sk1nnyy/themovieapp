@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.androidApplication)
@@ -23,12 +24,14 @@ android {
     namespace = "dev.themobiledev.movie"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
+
     defaultConfig {
         applicationId = "dev.themobiledev.movie"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
+
     }
     packaging {
         resources {
@@ -50,5 +53,6 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }

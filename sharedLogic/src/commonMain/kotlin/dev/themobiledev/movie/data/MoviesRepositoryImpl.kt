@@ -1,0 +1,18 @@
+package dev.themobiledev.movie.data
+
+import dev.themobiledev.movie.domain.MovieDetails
+import dev.themobiledev.movie.domain.MoviesPage
+import dev.themobiledev.movie.domain.MoviesRepository
+import dev.themobiledev.movie.network.service.MoviesApi
+
+class MoviesRepositoryImpl(private val moviesApi: MoviesApi) : MoviesRepository {
+
+    override suspend fun getPopularMovies(page: Int): Result<MoviesPage> =
+        moviesApi.getPopularMovies(page).map { it.toDomain() }
+
+    override suspend fun getMovieDetails(movieId: Int): Result<MovieDetails> =
+        moviesApi.getMovieDetails(movieId).map { it.toDomain() }
+
+    override suspend fun searchMovies(query: String, page: Int): Result<MoviesPage> =
+        moviesApi.searchMovies(query, page).map { it.toDomain() }
+}
