@@ -1,6 +1,12 @@
 package dev.themobiledev.movie.popularmovies.components
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -27,48 +33,84 @@ import coil3.compose.SubcomposeAsyncImage
 import dev.themobiledev.movie.Constants.POSTER_BASE_URL
 import dev.themobiledev.movie.R
 import dev.themobiledev.movie.domain.Movie
+import dev.themobiledev.movie.navigation.moviePosterSharedElementKey
+import dev.themobiledev.movie.navigation.movieTitleSharedElementKey
 import dev.themobiledev.movie.theme.MovieTheme
 
-
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun PopularMovieItem(movie: Movie, modifier: Modifier = Modifier) {
-    Card(modifier = modifier) {
+fun PopularMovieItem(
+    movie: Movie,
+    onClick: () -> Unit,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope,
+    modifier: Modifier = Modifier,
+) {
+    Card(modifier = modifier.clickable(onClick = onClick)) {
         Column(modifier = Modifier.fillMaxWidth()) {
 
-            SubcomposeAsyncImage(
-                model = movie.posterPath?.let { POSTER_BASE_URL + it },
-                contentDescription = stringResource(R.string.content_description_movie_poster_image),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(.8f),
-                contentScale = ContentScale.Crop,
-                loading = {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator()
-                    }
-                },
-                error = {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(MaterialTheme.colorScheme.surfaceVariant),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text(text = stringResource(R.string.error_no_image), style = MaterialTheme.typography.bodySmall)
-                    }
-                },
-            )
+            with(sharedTransitionScope) {
+                SubcomposeAsyncImage(
+                    model = movie.posterPath?.let { POSTER_BASE_URL + it },
+                    contentDescription = stringResource(R.string.content_description_movie_poster_image),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(.8f)
+                        .sharedElement(
+                            rememberSharedContentState(key = moviePosterSharedElementKey(movie.id)),
+                            animatedVisibilityScope = animatedVisibilityScope,
+                        ),
+                    contentScale = ContentScale.Crop,
+                    loading = {
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator()
+                        }
+                    },
+                    error = {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(MaterialTheme.colorScheme.surfaceVariant),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(text = stringResource(R.string.error_no_image), style = MaterialTheme.typography.bodySmall)
+                        }
+                    },
+                )
 
-            Text(text = movie.title, modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.titleMedium, maxLines = 2, minLines = 2, overflow = TextOverflow.Ellipsis)
+                Text(
+                    text = movie.title,
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .sharedBounds(
+                            rememberSharedContentState(key = movieTitleSharedElementKey(movie.id)),
+                            animatedVisibilityScope = animatedVisibilityScope,
+                        ),
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 2,
+                    minLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
         }
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Preview
 @Composable
 private fun PopularMovieItemPreview(@PreviewParameter(MoviePreviewParameters::class) movie: Movie) {
     MovieTheme {
-        PopularMovieItem(movie = movie)
+        SharedTransitionLayout {
+            AnimatedVisibility(visible = true) {
+                PopularMovieItem(
+                    movie = movie,
+                    onClick = {},
+                    sharedTransitionScope = this@SharedTransitionLayout,
+                    animatedVisibilityScope = this@AnimatedVisibility,
+                )
+            }
+        }
     }
 }
 

@@ -30,8 +30,10 @@ sealed interface PopularMoviesIntent {
     data object ShowFilters : PopularMoviesIntent
     data object HideFilters : PopularMoviesIntent
     data class OnFilterSelected(val filter: MovieFilter) : PopularMoviesIntent
+    data class OnMovieClicked(val movie: Movie) : PopularMoviesIntent
 }
 
 sealed interface PopularMoviesEffect {
     data class ShowError(val message: String) : PopularMoviesEffect
+    data class NavigateToDetail(val movie: Movie) : PopularMoviesEffect
 }

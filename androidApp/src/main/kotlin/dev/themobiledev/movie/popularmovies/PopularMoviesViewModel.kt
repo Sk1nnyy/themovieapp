@@ -38,6 +38,9 @@ class PopularMoviesViewModel(
             PopularMoviesIntent.ShowFilters -> state.update { it.copy(isFilterSheetVisible = true) }
             PopularMoviesIntent.HideFilters -> state.update { it.copy(isFilterSheetVisible = false) }
             is PopularMoviesIntent.OnFilterSelected -> onFilterSelected(intent.filter)
+            is PopularMoviesIntent.OnMovieClicked -> viewModelScope.launch {
+                effect.emit(PopularMoviesEffect.NavigateToDetail(intent.movie))
+            }
         }
     }
 

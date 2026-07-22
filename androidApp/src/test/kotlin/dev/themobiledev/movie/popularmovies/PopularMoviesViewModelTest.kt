@@ -153,4 +153,18 @@ class PopularMoviesViewModelTest {
         assertEquals("boom", viewModel.state.value.error)
         assertTrue(viewModel.state.value.movies.isEmpty())
     }
+
+    @Test
+    fun onMovieClicked_emitsNavigateToDetailEffect() = runTest(mainDispatcher) {
+        coEvery { repository.getPopularMovies(any()) } returns Result.success(page(listOf(movie(1))))
+
+        val viewModel = PopularMoviesViewModel(repository)
+        val clicked = movie(1)
+
+        viewModel.effect.test {
+            viewModel.handleIntent(PopularMoviesIntent.OnMovieClicked(clicked))
+
+            assertEquals(PopularMoviesEffect.NavigateToDetail(clicked), awaitItem())
+        }
+    }
 }

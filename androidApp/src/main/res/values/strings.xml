@@ -12,4 +12,7 @@
     <string name="filter_top_rated">Top Rated</string>
     <string name="filter_now_playing">Now Playing</string>
     <string name="action_retry">Retry</string>
+    <string name="content_description_back">Back</string>
+    <string name="movie_details_rating">★ %1$.1f</string>
+    <string name="movie_details_runtime_minutes">%1$d min</string>
 </resources>

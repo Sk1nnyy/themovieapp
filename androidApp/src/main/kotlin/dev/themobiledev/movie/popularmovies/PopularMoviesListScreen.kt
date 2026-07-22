@@ -1,5 +1,8 @@
 package dev.themobiledev.movie.popularmovies
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,6 +27,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.*
@@ -33,26 +38,52 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.themobiledev.movie.R
+import dev.themobiledev.movie.domain.Movie
 import dev.themobiledev.movie.popularmovies.components.PopularMovieItem
 import org.koin.compose.viewmodel.koinViewModel
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun PopularMoviesListScreen(
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope,
+    onNavigateToDetail: (Movie) -> Unit,
     viewModel: PopularMoviesViewModel = koinViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
 
-    PopularMoviesListContent(
-        state = state,
-        onIntent = viewModel::handleIntent,
-    )
+    LaunchedEffect(viewModel) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                is PopularMoviesEffect.NavigateToDetail -> onNavigateToDetail(effect.movie)
+                is PopularMoviesEffect.ShowError -> snackbarHostState.showSnackbar(effect.message)
+            }
+        }
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        PopularMoviesListContent(
+            state = state,
+            onIntent = viewModel::handleIntent,
+            sharedTransitionScope = sharedTransitionScope,
+            animatedVisibilityScope = animatedVisibilityScope,
+        )
+
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter),
+        )
+    }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Composable
 private fun PopularMoviesListContent(
     state: PopularMoviesState,
     onIntent: (PopularMoviesIntent) -> Unit,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope,
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -123,7 +154,12 @@ private fun PopularMoviesListContent(
                         horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         items(state.movies, key = { it.id }) { movie ->
-                            PopularMovieItem(movie)
+                            PopularMovieItem(
+                                movie = movie,
+                                onClick = { onIntent(PopularMoviesIntent.OnMovieClicked(movie)) },
+                                sharedTransitionScope = sharedTransitionScope,
+                                animatedVisibilityScope = animatedVisibilityScope,
+                            )
                         }
 
                         if (state.isLoadingMore) {
