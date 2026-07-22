@@ -8,7 +8,21 @@ plugins {
     alias(libs.plugins.androidMultiplatformLibrary)
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.buildkonfig)
+    alias(libs.plugins.sqldelight)
 }
+
+sqldelight {
+    databases {
+        create("MovieAppDatabase") {
+            packageName.set("dev.themobiledev.movie.db")
+        }
+    }
+}
+
+// No .sqm migration files exist yet, so this task has nothing to verify; it only runs because
+// the test-only JDBC sqlite driver below makes SQLDelight think verification is possible, and
+// its bundled sqlite-jdbc clashes natively with that driver's, breaking the whole build.
+tasks.matching { it.name == "verifyCommonMainMovieAppDatabaseMigration" }.configureEach { enabled = false }
 
 val localProperties = Properties().apply {
     val localPropertiesFile = rootProject.file("local.properties")
@@ -60,18 +74,27 @@ kotlin {
                 implementation(libs.ktor.serialization.kotlinxJson)
                 implementation(libs.kotlinx.serialization.json)
                 implementation(libs.koin.core)
+                implementation(libs.sqldelight.coroutinesExtensions)
             }
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
             implementation(libs.kotlinx.coroutines.test)
             implementation(libs.ktor.client.mock)
+            implementation(libs.turbine)
         }
         androidMain.dependencies {
             implementation(libs.ktor.client.okhttp)
+            implementation(libs.sqldelight.androidDriver)
+        }
+        getByName("androidHostTest") {
+            dependencies {
+                implementation(libs.sqldelight.sqliteDriver)
+            }
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
+            implementation(libs.sqldelight.nativeDriver)
         }
     }
 }

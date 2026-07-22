@@ -94,7 +94,16 @@ fun MovieNavHost(modifier: Modifier = Modifier) {
                             }
 
                             MovieRoute.Favorites -> NavEntry(route) {
-                                FavoritesScreen()
+                                FavoritesScreen(
+                                    sharedTransitionScope = this@SharedTransitionLayout,
+                                    animatedVisibilityScope = LocalNavAnimatedContentScope.current,
+                                    onNavigateToDetail = { movie ->
+                                        val detail = MovieRoute.MovieDetail(movie.id, movie.posterPath, movie.title)
+                                        if (backStack.lastOrNull() != detail) {
+                                            backStack.add(detail)
+                                        }
+                                    },
+                                )
                             }
 
                             is MovieRoute.MovieDetail -> NavEntry(

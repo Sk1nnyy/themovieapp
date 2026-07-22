@@ -1,5 +1,5 @@
 package dev.themobiledev.movie.navigation
 
-fun moviePosterSharedElementKey(movieId: Int): String = "movie-poster-$movieId"
+fun moviePosterSharedElementKey(movieId: Long): String = "movie-poster-$movieId"
 
-fun movieTitleSharedElementKey(movieId: Int): String = "movie-title-$movieId"
+fun movieTitleSharedElementKey(movieId: Long): String = "movie-title-$movieId"

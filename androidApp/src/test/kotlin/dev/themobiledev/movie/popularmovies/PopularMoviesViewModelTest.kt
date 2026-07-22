@@ -1,15 +1,18 @@
 package dev.themobiledev.movie.popularmovies
 
 import app.cash.turbine.test
+import dev.themobiledev.movie.domain.FavoritesRepository
 import dev.themobiledev.movie.domain.Movie
 import dev.themobiledev.movie.domain.MoviesPage
 import dev.themobiledev.movie.domain.MoviesRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -25,10 +28,12 @@ class PopularMoviesViewModelTest {
 
     private val mainDispatcher = UnconfinedTestDispatcher()
     private val repository = mockk<MoviesRepository>()
+    private val favoritesRepository = mockk<FavoritesRepository>()
 
     @Before
     fun setUp() {
         Dispatchers.setMain(mainDispatcher)
+        every { favoritesRepository.observeFavorites() } returns flowOf(emptyList())
     }
 
     @After
@@ -36,7 +41,7 @@ class PopularMoviesViewModelTest {
         Dispatchers.resetMain()
     }
 
-    private fun movie(id: Int, title: String = "Movie $id") = Movie(
+    private fun movie(id: Long, title: String = "Movie $id") = Movie(
         id = id,
         title = title,
         overview = "overview",
@@ -56,7 +61,7 @@ class PopularMoviesViewModelTest {
             Result.success(page(listOf(movie(1))))
         }
 
-        val viewModel = PopularMoviesViewModel(repository)
+        val viewModel = PopularMoviesViewModel(repository, favoritesRepository)
 
         viewModel.state.test {
             val loading = awaitItem()
@@ -83,7 +88,7 @@ class PopularMoviesViewModelTest {
             Result.success(page(listOf(movie(2), movie(3)), page = 2, totalPages = 2))
         }
 
-        val viewModel = PopularMoviesViewModel(repository)
+        val viewModel = PopularMoviesViewModel(repository, favoritesRepository)
 
         viewModel.state.test {
             assertEquals(listOf(movie(1), movie(2)), awaitItem().movies)
@@ -109,7 +114,7 @@ class PopularMoviesViewModelTest {
         coEvery { repository.getUpcomingMovies(any()) } returns
             Result.success(page(listOf(movie(2, "Upcoming Movie"))))
 
-        val viewModel = PopularMoviesViewModel(repository)
+        val viewModel = PopularMoviesViewModel(repository, favoritesRepository)
 
         viewModel.state.test {
             assertTrue(awaitItem().isLoading) // initial Popular load stuck behind popularGate
@@ -142,7 +147,7 @@ class PopularMoviesViewModelTest {
             Result.failure(IllegalStateException("boom"))
         }
 
-        val viewModel = PopularMoviesViewModel(repository)
+        val viewModel = PopularMoviesViewModel(repository, favoritesRepository)
 
         viewModel.effect.test {
             gate.complete(Unit)
@@ -158,7 +163,7 @@ class PopularMoviesViewModelTest {
     fun onMovieClicked_emitsNavigateToDetailEffect() = runTest(mainDispatcher) {
         coEvery { repository.getPopularMovies(any()) } returns Result.success(page(listOf(movie(1))))
 
-        val viewModel = PopularMoviesViewModel(repository)
+        val viewModel = PopularMoviesViewModel(repository, favoritesRepository)
         val clicked = movie(1)
 
         viewModel.effect.test {
@@ -166,5 +171,32 @@ class PopularMoviesViewModelTest {
 
             assertEquals(PopularMoviesEffect.NavigateToDetail(clicked), awaitItem())
         }
+    }
+
+    @Test
+    fun onFavoriteClicked_togglesWithNotFavoritedWhenNotAlreadyFavorited() = runTest(mainDispatcher) {
+        coEvery { repository.getPopularMovies(any()) } returns Result.success(page(listOf(movie(1))))
+        coEvery { favoritesRepository.toggleFavorite(any(), any()) } returns Unit
+
+        val viewModel = PopularMoviesViewModel(repository, favoritesRepository)
+        val clicked = movie(1)
+
+        viewModel.handleIntent(PopularMoviesIntent.OnFavoriteClicked(clicked))
+
+        coVerify(exactly = 1) { favoritesRepository.toggleFavorite(clicked, false) }
+    }
+
+    @Test
+    fun onFavoriteClicked_togglesWithFavoritedWhenAlreadyFavorited() = runTest(mainDispatcher) {
+        val favorite = movie(1)
+        every { favoritesRepository.observeFavorites() } returns flowOf(listOf(favorite))
+        coEvery { repository.getPopularMovies(any()) } returns Result.success(page(listOf(favorite)))
+        coEvery { favoritesRepository.toggleFavorite(any(), any()) } returns Unit
+
+        val viewModel = PopularMoviesViewModel(repository, favoritesRepository)
+
+        viewModel.handleIntent(PopularMoviesIntent.OnFavoriteClicked(favorite))
+
+        coVerify(exactly = 1) { favoritesRepository.toggleFavorite(favorite, true) }
     }
 }

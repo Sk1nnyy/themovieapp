@@ -1,7 +1,9 @@
 package dev.themobiledev.movie.moviedetails
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -16,11 +18,14 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SuggestionChip
@@ -31,23 +36,29 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.SubcomposeAsyncImage
 import dev.themobiledev.movie.Constants.POSTER_BASE_URL
 import dev.themobiledev.movie.R
+import dev.themobiledev.movie.domain.Genre
 import dev.themobiledev.movie.domain.MovieDetails
 import dev.themobiledev.movie.navigation.moviePosterSharedElementKey
 import dev.themobiledev.movie.navigation.movieTitleSharedElementKey
+import dev.themobiledev.movie.theme.MovieTheme
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun MovieDetailsScreen(
-    movieId: Int,
+    movieId: Long,
     posterPath: String?,
     title: String,
     sharedTransitionScope: SharedTransitionScope,
@@ -79,7 +90,7 @@ fun MovieDetailsScreen(
 @OptIn(ExperimentalSharedTransitionApi::class, ExperimentalMaterial3Api::class)
 @Composable
 private fun MovieDetailsContent(
-    movieId: Int,
+    movieId: Long,
     posterPath: String?,
     title: String,
     state: MovieDetailsState,
@@ -96,6 +107,21 @@ private fun MovieDetailsContent(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.content_description_back),
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { onIntent(MovieDetailsIntent.ToggleFavorite) }) {
+                        Icon(
+                            imageVector = if (state.isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                            contentDescription = stringResource(
+                                if (state.isFavorite) {
+                                    R.string.content_description_remove_favorite
+                                } else {
+                                    R.string.content_description_add_favorite
+                                },
+                            ),
+                            tint = if (state.isFavorite) Color.Red else LocalContentColor.current,
                         )
                     }
                 },
@@ -157,7 +183,7 @@ private fun MovieDetailsContent(
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 private fun MovieHero(
-    movieId: Int,
+    movieId: Long,
     posterPath: String?,
     title: String,
     sharedTransitionScope: SharedTransitionScope,
@@ -245,4 +271,51 @@ private fun MovieDetailsMetadata(details: MovieDetails) {
 
         Text(text = details.overview, style = MaterialTheme.typography.bodyLarge)
     }
+}
+
+@OptIn(ExperimentalSharedTransitionApi::class, ExperimentalMaterial3Api::class)
+@Preview
+@Composable
+private fun MovieDetailsScreenPreview(
+    @PreviewParameter(MovieDetailsStatePreviewParameters::class) state: MovieDetailsState,
+) {
+    MovieTheme {
+        SharedTransitionLayout {
+            AnimatedVisibility(visible = true) {
+                MovieDetailsContent(
+                    movieId = state.movieDetails?.id ?: 0L,
+                    posterPath = state.movieDetails?.posterPath.orEmpty(),
+                    title = state.movieDetails?.title.orEmpty(),
+                    state = state,
+                    sharedTransitionScope = this@SharedTransitionLayout,
+                    animatedVisibilityScope = this@AnimatedVisibility,
+                    onIntent = {},
+                )
+            }
+        }
+    }
+}
+
+
+private class MovieDetailsStatePreviewParameters : PreviewParameterProvider<MovieDetailsState> {
+    override val values: Sequence<MovieDetailsState>
+        get() = sequenceOf(
+            MovieDetailsState(movieDetails =  MovieDetails(
+                id = 1,
+                title = "The great Bruno",
+                overview = "The best movie in history",
+                tagline = "An epic tale",
+                runtime = 120,
+                budget = 1_000_000,
+                revenue = 5_000_000,
+                homepage = null,
+                genres = listOf(Genre(id = 1, name = "Action"), Genre(id = 2, name = "Drama")),
+                posterPath = null,
+                backdropPath = null,
+                releaseDate = "1996-01-30",
+                voteAverage = 8.5,
+                voteCount = 900,
+            ), isFavorite = true),
+            MovieDetailsState(isLoading = true),
+        )
 }

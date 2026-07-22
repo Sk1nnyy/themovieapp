@@ -47,7 +47,7 @@ class MovieMappersTest {
         assertEquals(2, page.page)
         assertEquals(10, page.totalPages)
         assertEquals(200, page.totalResults)
-        assertEquals(listOf(1, 2), page.movies.map { it.id })
+        assertEquals(listOf(1L, 2L), page.movies.map { it.id })
         assertEquals(listOf("A", "B"), page.movies.map { it.title })
     }
 

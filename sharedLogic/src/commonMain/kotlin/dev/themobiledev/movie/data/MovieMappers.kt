@@ -29,6 +29,16 @@ fun MoviesResponseDto.toDomain(): MoviesPage =
 
 fun GenreDto.toDomain(): Genre = Genre(id = id, name = name)
 
+fun MovieDetails.toMovie(): Movie =
+    Movie(
+        id = id,
+        title = title,
+        overview = overview,
+        posterPath = posterPath,
+        releaseDate = releaseDate,
+        voteAverage = voteAverage,
+    )
+
 fun MovieDetailsDto.toDomain(): MovieDetails =
     MovieDetails(
         id = id,

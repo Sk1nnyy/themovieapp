@@ -2,17 +2,22 @@ package dev.themobiledev.movie.popularmovies
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dev.themobiledev.movie.domain.FavoritesRepository
+import dev.themobiledev.movie.domain.Movie
 import dev.themobiledev.movie.domain.MoviesRepository
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class PopularMoviesViewModel(
     private val moviesRepository: MoviesRepository,
+    private val favoritesRepository: FavoritesRepository,
 ) : ViewModel() {
 
     val state: StateFlow<PopularMoviesState>
@@ -25,6 +30,9 @@ class PopularMoviesViewModel(
 
     init {
         handleIntent(PopularMoviesIntent.LoadPopularMovies)
+        favoritesRepository.observeFavorites()
+            .onEach { favorites -> state.update { it.copy(favoriteIds = favorites.mapTo(HashSet()) { movie -> movie.id }) } }
+            .launchIn(viewModelScope)
     }
 
     fun handleIntent(intent: PopularMoviesIntent) {
@@ -41,6 +49,13 @@ class PopularMoviesViewModel(
             is PopularMoviesIntent.OnMovieClicked -> viewModelScope.launch {
                 effect.emit(PopularMoviesEffect.NavigateToDetail(intent.movie))
             }
+            is PopularMoviesIntent.OnFavoriteClicked -> toggleFavorite(intent.movie)
+        }
+    }
+
+    private fun toggleFavorite(movie: Movie) {
+        viewModelScope.launch {
+            favoritesRepository.toggleFavorite(movie, movie.id in state.value.favoriteIds)
         }
     }
 

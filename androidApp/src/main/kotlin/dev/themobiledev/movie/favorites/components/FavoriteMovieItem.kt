@@ -1,23 +1,18 @@
-package dev.themobiledev.movie.popularmovies.components
+package dev.themobiledev.movie.favorites.components
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
-import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -31,9 +26,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewParameter
-import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import coil3.compose.SubcomposeAsyncImage
 import dev.themobiledev.movie.Constants.POSTER_BASE_URL
@@ -41,22 +33,19 @@ import dev.themobiledev.movie.R
 import dev.themobiledev.movie.domain.Movie
 import dev.themobiledev.movie.navigation.moviePosterSharedElementKey
 import dev.themobiledev.movie.navigation.movieTitleSharedElementKey
-import dev.themobiledev.movie.theme.MovieTheme
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun PopularMovieItem(
+fun FavoriteMovieItem(
     movie: Movie,
-    isFavorite: Boolean,
     onClick: () -> Unit,
-    onFavoriteClick: () -> Unit,
+    onRemoveClick: () -> Unit,
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope,
     modifier: Modifier = Modifier,
 ) {
     Card(modifier = modifier.clickable(onClick = onClick)) {
         Column(modifier = Modifier.fillMaxWidth()) {
-
             with(sharedTransitionScope) {
                 Box {
                     SubcomposeAsyncImage(
@@ -87,17 +76,11 @@ fun PopularMovieItem(
                         },
                     )
 
-                    IconButton(onClick = onFavoriteClick, modifier = Modifier.align(Alignment.TopEnd)) {
+                    IconButton(onClick = onRemoveClick, modifier = Modifier.align(Alignment.TopEnd)) {
                         Icon(
-                            imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                            contentDescription = stringResource(
-                                if (isFavorite) {
-                                    R.string.content_description_remove_favorite
-                                } else {
-                                    R.string.content_description_add_favorite
-                                },
-                            ),
-                            tint = if (isFavorite) Color.Red else MaterialTheme.colorScheme.onSurface,
+                            imageVector = Icons.Filled.Favorite,
+                            contentDescription = stringResource(R.string.content_description_remove_favorite),
+                            tint = Color.Red,
                         )
                     }
                 }
@@ -118,40 +101,4 @@ fun PopularMovieItem(
             }
         }
     }
-}
-
-@OptIn(ExperimentalSharedTransitionApi::class)
-@Preview
-@Composable
-private fun PopularMovieItemPreview(@PreviewParameter(MoviePreviewParameters::class) movie: Movie) {
-    MovieTheme {
-        SharedTransitionLayout {
-            AnimatedVisibility(visible = true) {
-                PopularMovieItem(
-                    movie = movie,
-                    isFavorite = false,
-                    onClick = {},
-                    onFavoriteClick = {},
-                    sharedTransitionScope = this@SharedTransitionLayout,
-                    animatedVisibilityScope = this@AnimatedVisibility,
-                )
-            }
-        }
-    }
-}
-
-private val previewMovie = Movie(
-    id = 1,
-    title = "The great Bruno",
-    overview = "The best movie in history",
-    posterPath = null,
-    releaseDate = "30/01/1996",
-    voteAverage = 5.0,
-)
-
-class MoviePreviewParameters : PreviewParameterProvider<Movie> {
-    override val values: Sequence<Movie>
-        get() = sequenceOf(
-            previewMovie
-        )
 }

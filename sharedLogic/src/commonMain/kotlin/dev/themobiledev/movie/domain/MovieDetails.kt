@@ -1,7 +1,7 @@
 package dev.themobiledev.movie.domain
 
 data class MovieDetails(
-    val id: Int,
+    val id: Long,
     val title: String,
     val overview: String,
     val tagline: String?,

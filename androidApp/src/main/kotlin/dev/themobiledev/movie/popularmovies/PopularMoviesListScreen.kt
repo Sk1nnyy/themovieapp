@@ -1,7 +1,9 @@
 package dev.themobiledev.movie.popularmovies
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,11 +37,15 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.themobiledev.movie.R
 import dev.themobiledev.movie.domain.Movie
 import dev.themobiledev.movie.popularmovies.components.PopularMovieItem
+import dev.themobiledev.movie.theme.MovieTheme
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalSharedTransitionApi::class)
@@ -156,7 +162,9 @@ private fun PopularMoviesListContent(
                         items(state.movies, key = { it.id }) { movie ->
                             PopularMovieItem(
                                 movie = movie,
+                                isFavorite = movie.id in state.favoriteIds,
                                 onClick = { onIntent(PopularMoviesIntent.OnMovieClicked(movie)) },
+                                onFavoriteClick = { onIntent(PopularMoviesIntent.OnFavoriteClicked(movie)) },
                                 sharedTransitionScope = sharedTransitionScope,
                                 animatedVisibilityScope = animatedVisibilityScope,
                             )
@@ -220,4 +228,51 @@ private fun FilterSheetContent(
             }
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
+@Preview
+@Composable
+private fun PopularMoviesListScreenPreview(
+    @PreviewParameter(PopularMoviesStatePreviewParameters::class) state: PopularMoviesState,
+) {
+    MovieTheme {
+        SharedTransitionLayout {
+            AnimatedVisibility(visible = true) {
+                PopularMoviesListContent(
+                    state = state,
+                    onIntent = {},
+                    sharedTransitionScope = this@SharedTransitionLayout,
+                    animatedVisibilityScope = this@AnimatedVisibility,
+                )
+            }
+        }
+    }
+}
+
+
+private class PopularMoviesStatePreviewParameters : PreviewParameterProvider<PopularMoviesState> {
+    override val values: Sequence<PopularMoviesState>
+        get() = sequenceOf(
+            PopularMoviesState(movies =  listOf(
+                Movie(
+                    id = 1,
+                    title = "The great Bruno",
+                    overview = "The best movie in history",
+                    posterPath = null,
+                    releaseDate = "1996-01-30",
+                    voteAverage = 5.0,
+                ),
+                Movie(
+                    id = 2,
+                    title = "Another Popular Movie",
+                    overview = "Overview",
+                    posterPath = null,
+                    releaseDate = "2020-05-01",
+                    voteAverage = 7.2,
+                ),
+            )),
+            PopularMoviesState(isLoading = true),
+            PopularMoviesState(error = "Unable to load movies"),
+        )
 }

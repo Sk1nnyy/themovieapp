@@ -1,13 +1,18 @@
 package dev.themobiledev.movie.moviedetails
 
 import app.cash.turbine.test
+import dev.themobiledev.movie.data.toMovie
+import dev.themobiledev.movie.domain.FavoritesRepository
 import dev.themobiledev.movie.domain.MovieDetails
 import dev.themobiledev.movie.domain.MoviesRepository
 import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -24,10 +29,12 @@ class MovieDetailsViewModelTest {
 
     private val mainDispatcher = UnconfinedTestDispatcher()
     private val repository = mockk<MoviesRepository>()
+    private val favoritesRepository = mockk<FavoritesRepository>()
 
     @Before
     fun setUp() {
         Dispatchers.setMain(mainDispatcher)
+        every { favoritesRepository.observeIsFavorite(any()) } returns flowOf(false)
     }
 
     @After
@@ -35,7 +42,7 @@ class MovieDetailsViewModelTest {
         Dispatchers.resetMain()
     }
 
-    private fun details(id: Int) = MovieDetails(
+    private fun details(id: Long) = MovieDetails(
         id = id,
         title = "Movie $id",
         overview = "overview",
@@ -56,7 +63,7 @@ class MovieDetailsViewModelTest {
     fun onBackClicked_emitsNavigateBackEffect() = runTest(mainDispatcher) {
         coEvery { repository.getMovieDetails(any()) } returns Result.success(details(1))
 
-        val viewModel = MovieDetailsViewModel(movieId = 1, moviesRepository = repository)
+        val viewModel = MovieDetailsViewModel(movieId = 1, moviesRepository = repository, favoritesRepository = favoritesRepository)
 
         viewModel.effect.test {
             viewModel.handleIntent(MovieDetailsIntent.OnBackClicked)
@@ -73,7 +80,7 @@ class MovieDetailsViewModelTest {
             Result.success(details(1))
         }
 
-        val viewModel = MovieDetailsViewModel(movieId = 1, moviesRepository = repository)
+        val viewModel = MovieDetailsViewModel(movieId = 1, moviesRepository = repository, favoritesRepository = favoritesRepository)
 
         viewModel.state.test {
             val loading = awaitItem()
@@ -97,7 +104,7 @@ class MovieDetailsViewModelTest {
             Result.failure(IllegalStateException("boom"))
         }
 
-        val viewModel = MovieDetailsViewModel(movieId = 1, moviesRepository = repository)
+        val viewModel = MovieDetailsViewModel(movieId = 1, moviesRepository = repository, favoritesRepository = favoritesRepository)
 
         viewModel.state.test {
             assertTrue(awaitItem().isLoading)
@@ -115,7 +122,7 @@ class MovieDetailsViewModelTest {
     fun retry_reloadsSuccessfullyAfterFailure() = runTest(mainDispatcher) {
         coEvery { repository.getMovieDetails(any()) } returns Result.failure(IllegalStateException("boom"))
 
-        val viewModel = MovieDetailsViewModel(movieId = 1, moviesRepository = repository)
+        val viewModel = MovieDetailsViewModel(movieId = 1, moviesRepository = repository, favoritesRepository = favoritesRepository)
         assertEquals("boom", viewModel.state.value.error)
 
         val gate = CompletableDeferred<Unit>()
@@ -138,5 +145,19 @@ class MovieDetailsViewModelTest {
             assertEquals(details(1), loaded.movieDetails)
             assertNull(loaded.error)
         }
+    }
+
+    @Test
+    fun toggleFavorite_delegatesCurrentFavoriteStateToRepository() = runTest(mainDispatcher) {
+        val movieDetails = details(1)
+        coEvery { repository.getMovieDetails(any()) } returns Result.success(movieDetails)
+        every { favoritesRepository.observeIsFavorite(any()) } returns flowOf(true)
+        coEvery { favoritesRepository.toggleFavorite(any(), any()) } returns Unit
+
+        val viewModel = MovieDetailsViewModel(movieId = 1, moviesRepository = repository, favoritesRepository = favoritesRepository)
+
+        viewModel.handleIntent(MovieDetailsIntent.ToggleFavorite)
+
+        coVerify(exactly = 1) { favoritesRepository.toggleFavorite(movieDetails.toMovie(), true) }
     }
 }

@@ -45,7 +45,7 @@ class MoviesRepositoryImplTest {
         assertEquals(100, page.totalResults)
         assertEquals(1, page.movies.size)
         with(page.movies.first()) {
-            assertEquals(1, id)
+            assertEquals(1L, id)
             assertEquals("Movie One", title)
             assertEquals("Overview one", overview)
             assertEquals("/one.jpg", posterPath)
@@ -183,7 +183,7 @@ class MoviesRepositoryImplTest {
 
         val details = repositoryWith(engine).getMovieDetails(42).getOrThrow()
 
-        assertEquals(42, details.id)
+        assertEquals(42L, details.id)
         assertEquals("Details Movie", details.title)
         assertEquals(1, details.genres.size)
         assertEquals("Action", details.genres.first().name)

@@ -19,6 +19,7 @@ data class PopularMoviesState(
     val error: String? = null,
     val selectedFilter: MovieFilter = MovieFilter.Popular,
     val isFilterSheetVisible: Boolean = false,
+    val favoriteIds: Set<Long> = emptySet(),
 ) {
     val canLoadMore: Boolean get() = currentPage < totalPages
 }
@@ -31,6 +32,7 @@ sealed interface PopularMoviesIntent {
     data object HideFilters : PopularMoviesIntent
     data class OnFilterSelected(val filter: MovieFilter) : PopularMoviesIntent
     data class OnMovieClicked(val movie: Movie) : PopularMoviesIntent
+    data class OnFavoriteClicked(val movie: Movie) : PopularMoviesIntent
 }
 
 sealed interface PopularMoviesEffect {

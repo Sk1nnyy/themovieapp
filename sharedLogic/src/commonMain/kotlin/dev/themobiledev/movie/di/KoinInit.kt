@@ -11,6 +11,6 @@ import org.koin.dsl.KoinAppDeclaration
 fun initKoin(config: KoinAppDeclaration = {}) {
     startKoin {
         config()
-        modules(networkModule, repositoryModule)
+        modules(networkModule, repositoryModule, databaseModule, platformDatabaseModule)
     }
 }
