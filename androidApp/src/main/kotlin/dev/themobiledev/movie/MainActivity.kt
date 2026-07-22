@@ -6,6 +6,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import dev.themobiledev.movie.navigation.MovieNavHost
+import dev.themobiledev.movie.theme.MovieTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -13,7 +15,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            App()
+            MovieTheme {
+                MovieNavHost()
+            }
         }
     }
 }
@@ -21,5 +25,7 @@ class MainActivity : ComponentActivity() {
 @Preview
 @Composable
 fun AppAndroidPreview() {
-    App()
+    MovieTheme {
+        MovieNavHost()
+    }
 }

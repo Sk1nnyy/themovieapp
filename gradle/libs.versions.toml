@@ -1,16 +1,19 @@
 [versions]
-agp = "9.0.1"
-android-compileSdk = "36"
+agp = "9.1.1"
+android-compileSdk = "37"
 android-minSdk = "24"
-android-targetSdk = "36"
+android-targetSdk = "37"
 androidx-activity = "1.13.0"
 androidx-appcompat = "1.7.1"
 androidx-core = "1.19.0"
 androidx-espresso = "3.7.0"
-androidx-lifecycle = "2.11.0-beta01"
+androidx-lifecycle = "2.11.0"
+androidx-navigation3 = "1.1.4"
 androidx-testExt = "1.3.0"
 buildkonfig = "0.22.0"
+coil = "3.5.0"
 composeMultiplatform = "1.11.1"
+composeMaterialIconsExtended = "1.7.3"
 junit = "4.13.2"
 koin = "4.2.2"
 kotlin = "2.4.10"
@@ -18,10 +21,14 @@ kotlinx-coroutines = "1.11.0"
 kotlinx-serialization = "1.11.0"
 ktor = "3.5.1"
 material3 = "1.11.0-alpha07"
+mockk = "1.14.11"
+turbine = "1.2.1"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
+turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
+mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-contentNegotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
@@ -30,6 +37,12 @@ ktor-client-mock = { module = "io.ktor:ktor-client-mock", version.ref = "ktor" }
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
 ktor-serialization-kotlinxJson = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
+koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
+koin-androidxCompose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin" }
+androidx-navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "androidx-navigation3" }
+androidx-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "androidx-navigation3" }
+coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
+coil-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coil" }
 kotlin-testJunit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
 junit = { module = "junit:junit", version.ref = "junit" }
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "androidx-core" }
@@ -43,6 +56,7 @@ androidx-lifecycle-runtimeCompose = { module = "org.jetbrains.androidx.lifecycle
 compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "composeMultiplatform" }
 compose-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "composeMultiplatform" }
 compose-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "material3" }
+compose-materialIconsExtended = { module = "org.jetbrains.compose.material:material-icons-extended", version.ref = "composeMaterialIconsExtended" }
 compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "composeMultiplatform" }
 compose-components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "composeMultiplatform" }
 compose-uiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "composeMultiplatform" }

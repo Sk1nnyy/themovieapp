@@ -1,3 +1,15 @@
 <resources>
     <string name="app_name">MovieApp</string>
+    <string name="error_no_image">No Image</string>
+    <string name="content_description_movie_poster_image">Movie poster image</string>
+    <string name="tab_popular">Popular</string>
+    <string name="tab_favorites">Favorites</string>
+    <string name="favorites_placeholder">Favorites coming soon</string>
+    <string name="content_description_filters_button">Filters</string>
+    <string name="filters_title">Filter by</string>
+    <string name="filter_popular">Popular</string>
+    <string name="filter_upcoming">Upcoming</string>
+    <string name="filter_top_rated">Top Rated</string>
+    <string name="filter_now_playing">Now Playing</string>
+    <string name="action_retry">Retry</string>
 </resources>

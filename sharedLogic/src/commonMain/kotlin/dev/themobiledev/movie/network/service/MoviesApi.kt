@@ -10,6 +10,15 @@ class MoviesApi(httpClient: HttpClient) : ApiClient(httpClient) {
     suspend fun getPopularMovies(page: Int = 1): Result<MoviesResponseDto> =
         get("movie/popular", parameters = mapOf("page" to page))
 
+    suspend fun getUpcomingMovies(page: Int = 1): Result<MoviesResponseDto> =
+        get("movie/upcoming", parameters = mapOf("page" to page))
+
+    suspend fun getTopRatedMovies(page: Int = 1): Result<MoviesResponseDto> =
+        get("movie/top_rated", parameters = mapOf("page" to page))
+
+    suspend fun getNowPlayingMovies(page: Int = 1): Result<MoviesResponseDto> =
+        get("movie/now_playing", parameters = mapOf("page" to page))
+
     suspend fun getMovieDetails(movieId: Int): Result<MovieDetailsDto> =
         get("movie/$movieId")
 

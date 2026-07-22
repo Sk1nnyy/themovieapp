@@ -10,6 +10,15 @@ class MoviesRepositoryImpl(private val moviesApi: MoviesApi) : MoviesRepository 
     override suspend fun getPopularMovies(page: Int): Result<MoviesPage> =
         moviesApi.getPopularMovies(page).map { it.toDomain() }
 
+    override suspend fun getUpcomingMovies(page: Int): Result<MoviesPage> =
+        moviesApi.getUpcomingMovies(page).map { it.toDomain() }
+
+    override suspend fun getTopRatedMovies(page: Int): Result<MoviesPage> =
+        moviesApi.getTopRatedMovies(page).map { it.toDomain() }
+
+    override suspend fun getNowPlayingMovies(page: Int): Result<MoviesPage> =
+        moviesApi.getNowPlayingMovies(page).map { it.toDomain() }
+
     override suspend fun getMovieDetails(movieId: Int): Result<MovieDetails> =
         moviesApi.getMovieDetails(movieId).map { it.toDomain() }
 

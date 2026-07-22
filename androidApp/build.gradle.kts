@@ -13,11 +13,34 @@ kotlin {
 }
 dependencies {
     implementation(project(":sharedUI"))
+    implementation(project(":sharedLogic"))
 
     implementation(libs.androidx.activity.compose)
-
+    implementation(libs.compose.runtime)
+    implementation(libs.compose.foundation)
+    implementation(libs.compose.material3)
+    implementation(libs.compose.materialIconsExtended)
+    implementation(libs.compose.ui)
     implementation(libs.compose.uiToolingPreview)
     debugImplementation(libs.compose.uiTooling)
+
+    implementation(libs.androidx.lifecycle.viewmodelCompose)
+    implementation(libs.androidx.lifecycle.runtimeCompose)
+
+    implementation(libs.androidx.navigation3.runtime)
+    implementation(libs.androidx.navigation3.ui)
+
+    implementation(libs.koin.android)
+    implementation(libs.koin.androidxCompose)
+
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
+
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlin.testJunit)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.turbine)
+    testImplementation(libs.mockk)
 }
 
 android {

@@ -71,6 +71,90 @@ class MoviesRepositoryImplTest {
     }
 
     @Test
+    fun getUpcomingMovies_requestsUpcomingEndpointAndMapsResponse() = runTest {
+        var capturedUrl = ""
+        val engine = MockEngine { request ->
+            capturedUrl = request.url.toString()
+            respond(
+                content = """
+                    {
+                      "page": 1,
+                      "results": [
+                        {"id": 2, "title": "Movie Two", "overview": "Overview two", "poster_path": "/two.jpg", "release_date": "2024-02-01", "vote_average": 6.5}
+                      ],
+                      "total_pages": 3,
+                      "total_results": 50
+                    }
+                """.trimIndent(),
+                status = HttpStatusCode.OK,
+                headers = headersOf(HttpHeaders.ContentType, "application/json"),
+            )
+        }
+
+        val page = repositoryWith(engine).getUpcomingMovies(page = 1).getOrThrow()
+
+        assertEquals(true, capturedUrl.contains("movie/upcoming"))
+        assertEquals(1, page.movies.size)
+        assertEquals("Movie Two", page.movies.first().title)
+    }
+
+    @Test
+    fun getTopRatedMovies_requestsTopRatedEndpointAndMapsResponse() = runTest {
+        var capturedUrl = ""
+        val engine = MockEngine { request ->
+            capturedUrl = request.url.toString()
+            respond(
+                content = """
+                    {
+                      "page": 1,
+                      "results": [
+                        {"id": 3, "title": "Movie Three", "overview": "Overview three", "poster_path": "/three.jpg", "release_date": "2024-03-01", "vote_average": 9.0}
+                      ],
+                      "total_pages": 2,
+                      "total_results": 30
+                    }
+                """.trimIndent(),
+                status = HttpStatusCode.OK,
+                headers = headersOf(HttpHeaders.ContentType, "application/json"),
+            )
+        }
+
+        val page = repositoryWith(engine).getTopRatedMovies(page = 1).getOrThrow()
+
+        assertEquals(true, capturedUrl.contains("movie/top_rated"))
+        assertEquals(1, page.movies.size)
+        assertEquals("Movie Three", page.movies.first().title)
+    }
+
+    @Test
+    fun getNowPlayingMovies_requestsNowPlayingEndpointAndMapsResponse() = runTest {
+        var capturedUrl = ""
+        val engine = MockEngine { request ->
+            capturedUrl = request.url.toString()
+            respond(
+                content = """
+                    {
+                      "page": 1,
+                      "results": [
+                        {"id": 4, "title": "Movie Four", "overview": "Overview four", "poster_path": "/four.jpg", "release_date": "2024-04-01", "vote_average": 4.0}
+                      ],
+                      "total_pages": 4,
+                      "total_results": 60
+                    }
+                """.trimIndent(),
+                status = HttpStatusCode.OK,
+                headers = headersOf(HttpHeaders.ContentType, "application/json"),
+            )
+        }
+
+        val page = repositoryWith(engine).getNowPlayingMovies(page = 1).getOrThrow()
+
+        assertEquals(true, capturedUrl.contains("movie/now_playing"))
+        assertEquals(1, page.movies.size)
+        assertEquals("Movie Four", page.movies.first().title)
+    }
+
+    @Test
     fun getMovieDetails_mapsResponseToDomain() = runTest {
         val engine = MockEngine { _ ->
             respond(
