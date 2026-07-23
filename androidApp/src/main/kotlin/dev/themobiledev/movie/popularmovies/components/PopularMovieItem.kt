@@ -14,11 +14,13 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -27,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
@@ -41,6 +44,7 @@ import dev.themobiledev.movie.R
 import dev.themobiledev.movie.domain.Movie
 import dev.themobiledev.movie.navigation.moviePosterSharedElementKey
 import dev.themobiledev.movie.navigation.movieTitleSharedElementKey
+import dev.themobiledev.movie.theme.FavoriteRed
 import dev.themobiledev.movie.theme.MovieTheme
 
 @OptIn(ExperimentalSharedTransitionApi::class)
@@ -54,68 +58,73 @@ fun PopularMovieItem(
     animatedVisibilityScope: AnimatedVisibilityScope,
     modifier: Modifier = Modifier,
 ) {
-    Card(modifier = modifier.clickable(onClick = onClick)) {
-        Column(modifier = Modifier.fillMaxWidth()) {
-
-            with(sharedTransitionScope) {
-                Box {
-                    SubcomposeAsyncImage(
-                        model = movie.posterPath?.let { POSTER_BASE_URL + it },
-                        contentDescription = stringResource(R.string.content_description_movie_poster_image),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .aspectRatio(.8f)
-                            .sharedElement(
-                                rememberSharedContentState(key = moviePosterSharedElementKey(movie.id)),
-                                animatedVisibilityScope = animatedVisibilityScope,
-                            ),
-                        contentScale = ContentScale.Crop,
-                        loading = {
-                            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                CircularProgressIndicator()
-                            }
-                        },
-                        error = {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .background(MaterialTheme.colorScheme.surfaceVariant),
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                Text(text = stringResource(R.string.error_no_image), style = MaterialTheme.typography.bodySmall)
-                            }
-                        },
-                    )
-
-                    IconButton(onClick = onFavoriteClick, modifier = Modifier.align(Alignment.TopEnd)) {
-                        Icon(
-                            imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                            contentDescription = stringResource(
-                                if (isFavorite) {
-                                    R.string.content_description_remove_favorite
-                                } else {
-                                    R.string.content_description_add_favorite
-                                },
-                            ),
-                            tint = if (isFavorite) Color.Red else MaterialTheme.colorScheme.onSurface,
-                        )
-                    }
-                }
-
-                Text(
-                    text = movie.title,
+    Column(modifier = modifier.clickable(onClick = onClick).fillMaxWidth()) {
+        with(sharedTransitionScope) {
+            Box {
+                SubcomposeAsyncImage(
+                    model = movie.posterPath?.let { POSTER_BASE_URL + it },
+                    contentDescription = stringResource(R.string.content_description_movie_poster_image),
                     modifier = Modifier
-                        .padding(16.dp)
-                        .sharedBounds(
-                            rememberSharedContentState(key = movieTitleSharedElementKey(movie.id)),
+                        .fillMaxWidth()
+                        .aspectRatio(2f / 3f)
+                        .clip(RoundedCornerShape(12.dp))
+                        .sharedElement(
+                            rememberSharedContentState(key = moviePosterSharedElementKey(movie.id)),
                             animatedVisibilityScope = animatedVisibilityScope,
                         ),
-                    style = MaterialTheme.typography.titleMedium,
-                    maxLines = 2,
-                    minLines = 2,
-                    overflow = TextOverflow.Ellipsis,
+                    contentScale = ContentScale.Crop,
+                    loading = {
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator()
+                        }
+                    },
+                    error = {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(MaterialTheme.colorScheme.surfaceVariant),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(text = stringResource(R.string.error_no_image), style = MaterialTheme.typography.bodySmall)
+                        }
+                    },
                 )
+
+                IconButton(
+                    onClick = onFavoriteClick,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(6.dp)
+                        .size(36.dp)
+                        .background(Color.Black.copy(alpha = 0.35f), CircleShape),
+                ) {
+                    Icon(
+                        imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                        contentDescription = stringResource(
+                            if (isFavorite) {
+                                R.string.content_description_remove_favorite
+                            } else {
+                                R.string.content_description_add_favorite
+                            },
+                        ),
+                        tint = if (isFavorite) FavoriteRed else Color.White,
+                    )
+                }
             }
+
+            Text(
+                text = movie.title,
+                modifier = Modifier
+                    .padding(16.dp)
+                    .sharedBounds(
+                        rememberSharedContentState(key = movieTitleSharedElementKey(movie.id)),
+                        animatedVisibilityScope = animatedVisibilityScope,
+                    ),
+                style = MaterialTheme.typography.titleMedium,
+                maxLines = 2,
+                minLines = 2,
+                overflow = TextOverflow.Ellipsis,
+            )
         }
     }
 }

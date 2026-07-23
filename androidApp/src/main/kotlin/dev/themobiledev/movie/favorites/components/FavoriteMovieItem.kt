@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.Card
@@ -33,6 +35,7 @@ import dev.themobiledev.movie.R
 import dev.themobiledev.movie.domain.Movie
 import dev.themobiledev.movie.navigation.moviePosterSharedElementKey
 import dev.themobiledev.movie.navigation.movieTitleSharedElementKey
+import dev.themobiledev.movie.theme.FavoriteRed
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
@@ -53,7 +56,7 @@ fun FavoriteMovieItem(
                         contentDescription = stringResource(R.string.content_description_movie_poster_image),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .aspectRatio(.8f)
+                            .aspectRatio(2f / 3f)
                             .sharedElement(
                                 rememberSharedContentState(key = moviePosterSharedElementKey(movie.id)),
                                 animatedVisibilityScope = animatedVisibilityScope,
@@ -76,11 +79,18 @@ fun FavoriteMovieItem(
                         },
                     )
 
-                    IconButton(onClick = onRemoveClick, modifier = Modifier.align(Alignment.TopEnd)) {
+                    IconButton(
+                        onClick = onRemoveClick,
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(6.dp)
+                            .size(36.dp)
+                            .background(Color.Black.copy(alpha = 0.35f), CircleShape),
+                    ) {
                         Icon(
                             imageVector = Icons.Filled.Favorite,
                             contentDescription = stringResource(R.string.content_description_remove_favorite),
-                            tint = Color.Red,
+                            tint = FavoriteRed,
                         )
                     }
                 }

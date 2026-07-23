@@ -6,5 +6,4 @@ interface MoviesRepository {
     suspend fun getTopRatedMovies(page: Int = 1): Result<MoviesPage>
     suspend fun getNowPlayingMovies(page: Int = 1): Result<MoviesPage>
     suspend fun getMovieDetails(movieId: Long): Result<MovieDetails>
-    suspend fun searchMovies(query: String, page: Int = 1): Result<MoviesPage>
 }

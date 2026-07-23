@@ -21,7 +21,4 @@ class MoviesApi(httpClient: HttpClient) : ApiClient(httpClient) {
 
     suspend fun getMovieDetails(movieId: Long): Result<MovieDetailsDto> =
         get("movie/$movieId")
-
-    suspend fun searchMovies(query: String, page: Int = 1): Result<MoviesResponseDto> =
-        get("search/movie", parameters = mapOf("query" to query, "page" to page))
 }

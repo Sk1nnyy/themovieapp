@@ -6,12 +6,51 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		172C27C77A4C3219DC0F0DB5 /* CasePaths in Frameworks */ = {isa = PBXBuildFile; productRef = C1AC304C800026E20A8DA90A /* CasePaths */; };
+		1C923CD325C6C0A3E64C6B94 /* Gate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F54A729BC8215B29B53D0D6C /* Gate.swift */; };
+		33F3A3ECC9FC42B894663C7A /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 7006A103D6464AF996734F42 /* libsqlite3.tbd */; };
+		45C491E9979B330F2B92AE34 /* MovieFixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4A7DCD17872F663792F2CCD /* MovieFixtures.swift */; };
+		5D11C40DF44DA88DCFF58CE1 /* EquatableErrorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CC9FE93D2ED6DCCB99EDF27 /* EquatableErrorTests.swift */; };
+		662E2BE329874E8FA0A67B09 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 20E873E7D2C74EA181F1FF71 /* ComposableArchitecture */; };
+		66A54F5D79482792C18B95E0 /* IssueReporting in Frameworks */ = {isa = PBXBuildFile; productRef = 57AB73B35809841BC8D4C8CB /* IssueReporting */; };
+		7935B1D3C24CCE082BA5AEDC /* PopularMoviesFeatureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EB1A8A75B4F08B88FE3AA7B /* PopularMoviesFeatureTests.swift */; };
+		8CE238F2AFF71EDE0FF05064 /* MovieDetailFeatureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8079A2A68EB6B12149F922C0 /* MovieDetailFeatureTests.swift */; };
+		9AE98BE399BDF780D6577146 /* FavoritesFeatureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B63E167CCD0113C5E6C98CE /* FavoritesFeatureTests.swift */; };
+		A7B6D0028BDD92FB0679B300 /* PerceptionCore in Frameworks */ = {isa = PBXBuildFile; productRef = E13EDDEFE6F5D6EB2BF4F8BD /* PerceptionCore */; };
+		A892D73E9E1A6B3D33F2AF9F /* AppFeatureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B877F74DE5DE42FC876FCF36 /* AppFeatureTests.swift */; };
+		B0C54DB8EA858B29A47DFFF7 /* Dependencies in Frameworks */ = {isa = PBXBuildFile; productRef = B1620B9A446F51AD35C902A2 /* Dependencies */; };
+		DD1BBDDCF418B8EC2004B26F /* DependenciesMacros in Frameworks */ = {isa = PBXBuildFile; productRef = BC1F893FAAD5B43AA7980E80 /* DependenciesMacros */; };
+		E600A38D39907637FF01F466 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 43F63D0EF4A692F1559D9319 /* Foundation.framework */; };
+		FEF02584D6993CC0FC92FF34 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = EBD0F16B5C8E496EB212CB5D /* ComposableArchitecture */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		FB98D446DACC1BFBA1373303 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FD4F42F13CE775C7B8458117 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2E2258E6E3B662F908B368BF;
+			remoteInfo = iosApp;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		43F63D0EF4A692F1559D9319 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		46B25EB09933A207F4BC4024 /* MovieApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MovieApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		5CC9FE93D2ED6DCCB99EDF27 /* EquatableErrorTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = EquatableErrorTests.swift; sourceTree = "<group>"; };
+		6B63E167CCD0113C5E6C98CE /* FavoritesFeatureTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FavoritesFeatureTests.swift; sourceTree = "<group>"; };
+		7006A103D6464AF996734F42 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
+		723A95C8F63B3F6ED86D90A0 /* iosAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = iosAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		8079A2A68EB6B12149F922C0 /* MovieDetailFeatureTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MovieDetailFeatureTests.swift; sourceTree = "<group>"; };
+		9EB1A8A75B4F08B88FE3AA7B /* PopularMoviesFeatureTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PopularMoviesFeatureTests.swift; sourceTree = "<group>"; };
+		B877F74DE5DE42FC876FCF36 /* AppFeatureTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppFeatureTests.swift; sourceTree = "<group>"; };
+		D4A7DCD17872F663792F2CCD /* MovieFixtures.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MovieFixtures.swift; sourceTree = "<group>"; };
+		F54A729BC8215B29B53D0D6C /* Gate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Gate.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		940CA25976DDFD567AA4E602 /* Exceptions for "iosApp" folder in "iosApp" target */ = {
+		940CA25976DDFD567AA4E602 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -24,13 +63,23 @@
 		527FC616FFD6DDF7E716AA5E /* iosApp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				940CA25976DDFD567AA4E602 /* Exceptions for "iosApp" folder in "iosApp" target */,
+				940CA25976DDFD567AA4E602 /* PBXFileSystemSynchronizedBuildFileExceptionSet */,
+			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
 			);
 			path = iosApp;
 			sourceTree = "<group>";
 		};
 		FA95A70DDDA454A3DBA7FA99 /* Configuration */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
 			path = Configuration;
 			sourceTree = "<group>";
 		};
@@ -41,32 +90,113 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				33F3A3ECC9FC42B894663C7A /* libsqlite3.tbd in Frameworks */,
+				662E2BE329874E8FA0A67B09 /* ComposableArchitecture in Frameworks */,
+				B0C54DB8EA858B29A47DFFF7 /* Dependencies in Frameworks */,
+				DD1BBDDCF418B8EC2004B26F /* DependenciesMacros in Frameworks */,
+				172C27C77A4C3219DC0F0DB5 /* CasePaths in Frameworks */,
+				66A54F5D79482792C18B95E0 /* IssueReporting in Frameworks */,
+				A7B6D0028BDD92FB0679B300 /* PerceptionCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F9C886E18A0905A75D0375C0 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E600A38D39907637FF01F466 /* Foundation.framework in Frameworks */,
+				FEF02584D6993CC0FC92FF34 /* ComposableArchitecture in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		5FEE78D324E0E2000E454D5A = {
+		0BC0B9D3C465312136100558 /* iosAppTests */ = {
 			isa = PBXGroup;
 			children = (
-				FA95A70DDDA454A3DBA7FA99 /* Configuration */,
-				527FC616FFD6DDF7E716AA5E /* iosApp */,
-				426160E409EF8FC5D54AA11A /* Products */,
+				F8F4AB5F0A2C6A1CA8B8A53A /* Support */,
+				B877F74DE5DE42FC876FCF36 /* AppFeatureTests.swift */,
+				5CC9FE93D2ED6DCCB99EDF27 /* EquatableErrorTests.swift */,
+				6B63E167CCD0113C5E6C98CE /* FavoritesFeatureTests.swift */,
+				9EB1A8A75B4F08B88FE3AA7B /* PopularMoviesFeatureTests.swift */,
+				8079A2A68EB6B12149F922C0 /* MovieDetailFeatureTests.swift */,
 			);
+			name = iosAppTests;
+			path = iosAppTests;
 			sourceTree = "<group>";
 		};
 		426160E409EF8FC5D54AA11A /* Products */ = {
 			isa = PBXGroup;
 			children = (
 				46B25EB09933A207F4BC4024 /* MovieApp.app */,
+				723A95C8F63B3F6ED86D90A0 /* iosAppTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		5FEE78D324E0E2000E454D5A = {
+			isa = PBXGroup;
+			children = (
+				FA95A70DDDA454A3DBA7FA99 /* Configuration */,
+				527FC616FFD6DDF7E716AA5E /* iosApp */,
+				6A17573CB39249BFB9087678 /* Frameworks */,
+				426160E409EF8FC5D54AA11A /* Products */,
+				0BC0B9D3C465312136100558 /* iosAppTests */,
+			);
+			sourceTree = "<group>";
+		};
+		6A17573CB39249BFB9087678 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				7006A103D6464AF996734F42 /* libsqlite3.tbd */,
+				946B5A85AD854B5DD0593433 /* iOS */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		946B5A85AD854B5DD0593433 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				43F63D0EF4A692F1559D9319 /* Foundation.framework */,
+			);
+			name = iOS;
+			sourceTree = "<group>";
+		};
+		F8F4AB5F0A2C6A1CA8B8A53A /* Support */ = {
+			isa = PBXGroup;
+			children = (
+				D4A7DCD17872F663792F2CCD /* MovieFixtures.swift */,
+				F54A729BC8215B29B53D0D6C /* Gate.swift */,
+			);
+			name = Support;
+			path = Support;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		042673E8009DAD6B65A9A291 /* iosAppTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6EFA55D9E062C07230A10482 /* Build configuration list for PBXNativeTarget "iosAppTests" */;
+			buildPhases = (
+				236C8D2724F892BF0131DC42 /* Sources */,
+				F9C886E18A0905A75D0375C0 /* Frameworks */,
+				3643F1D32ADF27165EC5E9A1 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				8EB00F2D51FA1A961C1214C0 /* PBXTargetDependency */,
+			);
+			name = iosAppTests;
+			packageProductDependencies = (
+				EBD0F16B5C8E496EB212CB5D /* ComposableArchitecture */,
+			);
+			productName = iosAppTests;
+			productReference = 723A95C8F63B3F6ED86D90A0 /* iosAppTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		2E2258E6E3B662F908B368BF /* iosApp */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = AAB5349E57AF51B5F8655CC1 /* Build configuration list for PBXNativeTarget "iosApp" */;
@@ -85,6 +215,12 @@
 			);
 			name = iosApp;
 			packageProductDependencies = (
+				20E873E7D2C74EA181F1FF71 /* ComposableArchitecture */,
+				B1620B9A446F51AD35C902A2 /* Dependencies */,
+				BC1F893FAAD5B43AA7980E80 /* DependenciesMacros */,
+				C1AC304C800026E20A8DA90A /* CasePaths */,
+				57AB73B35809841BC8D4C8CB /* IssueReporting */,
+				E13EDDEFE6F5D6EB2BF4F8BD /* PerceptionCore */,
 			);
 			productName = iosApp;
 			productReference = 46B25EB09933A207F4BC4024 /* MovieApp.app */;
@@ -100,6 +236,10 @@
 				LastSwiftUpdateCheck = 1620;
 				LastUpgradeCheck = 1620;
 				TargetAttributes = {
+					042673E8009DAD6B65A9A291 = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = 2E2258E6E3B662F908B368BF;
+					};
 					2E2258E6E3B662F908B368BF = {
 						CreatedOnToolsVersion = 16.2;
 					};
@@ -114,17 +254,32 @@
 			);
 			mainGroup = 5FEE78D324E0E2000E454D5A;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				AD7FB38BCE4F4F3993440EE0 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
+				491C3D29842C0170CBDFA207 /* XCRemoteSwiftPackageReference "swift-dependencies" */,
+				ADE7DAEADC47FA8E806431B0 /* XCRemoteSwiftPackageReference "swift-case-paths" */,
+				320EAA9BC8322D119FBF785E /* XCRemoteSwiftPackageReference "xctest-dynamic-overlay" */,
+				8304ECA115CD68B53F832417 /* XCRemoteSwiftPackageReference "swift-perception" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 426160E409EF8FC5D54AA11A /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
 				2E2258E6E3B662F908B368BF /* iosApp */,
+				042673E8009DAD6B65A9A291 /* iosAppTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		3643F1D32ADF27165EC5E9A1 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4315A92E177F34D061DCAF80 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -157,6 +312,20 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		236C8D2724F892BF0131DC42 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A892D73E9E1A6B3D33F2AF9F /* AppFeatureTests.swift in Sources */,
+				5D11C40DF44DA88DCFF58CE1 /* EquatableErrorTests.swift in Sources */,
+				9AE98BE399BDF780D6577146 /* FavoritesFeatureTests.swift in Sources */,
+				7935B1D3C24CCE082BA5AEDC /* PopularMoviesFeatureTests.swift in Sources */,
+				45C491E9979B330F2B92AE34 /* MovieFixtures.swift in Sources */,
+				1C923CD325C6C0A3E64C6B94 /* Gate.swift in Sources */,
+				8CE238F2AFF71EDE0FF05064 /* MovieDetailFeatureTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		93EBB0982D0F0ACDBE79CBFF /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -166,7 +335,63 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		8EB00F2D51FA1A961C1214C0 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = iosApp;
+			target = 2E2258E6E3B662F908B368BF /* iosApp */;
+			targetProxy = FB98D446DACC1BFBA1373303 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		0295009EF7767D15A7992C74 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_ASSET_PATHS = "\"iosApp/Preview Content\"";
+				DEVELOPMENT_TEAM = "${TEAM_ID}";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = iosApp/Info.plist;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		9C0FEB9FCC90C064BAC2370A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "${TEAM_ID}";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.themobiledev.movie.MovieApp.Tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MovieApp.app/MovieApp";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 		B594BE5D450DBA63E2D525EC /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReferenceAnchor = FA95A70DDDA454A3DBA7FA99 /* Configuration */;
@@ -232,6 +457,34 @@
 			};
 			name = Debug;
 		};
+		DF1C6CE2D215CE097E1879EB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_ASSET_PATHS = "\"iosApp/Preview Content\"";
+				DEVELOPMENT_TEAM = "${TEAM_ID}";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = iosApp/Info.plist;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
 		E39F50398A3C806EFE04DA73 /* Release */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReferenceAnchor = FA95A70DDDA454A3DBA7FA99 /* Configuration */;
@@ -290,70 +543,32 @@
 			};
 			name = Release;
 		};
-		DF1C6CE2D215CE097E1879EB /* Debug */ = {
+		EDFCADD438C924F59525C119 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = arm64;
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_IDENTITY = "Apple Development";
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_ASSET_PATHS = "\"iosApp/Preview Content\"";
 				DEVELOPMENT_TEAM = "${TEAM_ID}";
-				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = iosApp/Info.plist;
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				SWIFT_EMIT_LOC_STRINGS = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.themobiledev.movie.MovieApp.Tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MovieApp.app/MovieApp";
 			};
 			name = Debug;
-		};
-		0295009EF7767D15A7992C74 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = arm64;
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_ASSET_PATHS = "\"iosApp/Preview Content\"";
-				DEVELOPMENT_TEAM = "${TEAM_ID}";
-				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = iosApp/Info.plist;
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		DE2E5E20DFF4166493512958 /* Build configuration list for PBXProject "iosApp" */ = {
+		6EFA55D9E062C07230A10482 /* Build configuration list for PBXNativeTarget "iosAppTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				B594BE5D450DBA63E2D525EC /* Debug */,
-				E39F50398A3C806EFE04DA73 /* Release */,
+				9C0FEB9FCC90C064BAC2370A /* Release */,
+				EDFCADD438C924F59525C119 /* Debug */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -367,7 +582,97 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		DE2E5E20DFF4166493512958 /* Build configuration list for PBXProject "iosApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B594BE5D450DBA63E2D525EC /* Debug */,
+				E39F50398A3C806EFE04DA73 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		320EAA9BC8322D119FBF785E /* XCRemoteSwiftPackageReference "xctest-dynamic-overlay" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/xctest-dynamic-overlay";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.11.0;
+			};
+		};
+		491C3D29842C0170CBDFA207 /* XCRemoteSwiftPackageReference "swift-dependencies" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swift-dependencies";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.14.1;
+			};
+		};
+		8304ECA115CD68B53F832417 /* XCRemoteSwiftPackageReference "swift-perception" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swift-perception";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.11;
+			};
+		};
+		AD7FB38BCE4F4F3993440EE0 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swift-composable-architecture";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.17.0;
+			};
+		};
+		ADE7DAEADC47FA8E806431B0 /* XCRemoteSwiftPackageReference "swift-case-paths" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swift-case-paths";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.9.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		20E873E7D2C74EA181F1FF71 /* ComposableArchitecture */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AD7FB38BCE4F4F3993440EE0 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
+			productName = ComposableArchitecture;
+		};
+		57AB73B35809841BC8D4C8CB /* IssueReporting */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 320EAA9BC8322D119FBF785E /* XCRemoteSwiftPackageReference "xctest-dynamic-overlay" */;
+			productName = IssueReporting;
+		};
+		B1620B9A446F51AD35C902A2 /* Dependencies */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 491C3D29842C0170CBDFA207 /* XCRemoteSwiftPackageReference "swift-dependencies" */;
+			productName = Dependencies;
+		};
+		BC1F893FAAD5B43AA7980E80 /* DependenciesMacros */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 491C3D29842C0170CBDFA207 /* XCRemoteSwiftPackageReference "swift-dependencies" */;
+			productName = DependenciesMacros;
+		};
+		C1AC304C800026E20A8DA90A /* CasePaths */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = ADE7DAEADC47FA8E806431B0 /* XCRemoteSwiftPackageReference "swift-case-paths" */;
+			productName = CasePaths;
+		};
+		E13EDDEFE6F5D6EB2BF4F8BD /* PerceptionCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8304ECA115CD68B53F832417 /* XCRemoteSwiftPackageReference "swift-perception" */;
+			productName = PerceptionCore;
+		};
+		EBD0F16B5C8E496EB212CB5D /* ComposableArchitecture */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AD7FB38BCE4F4F3993440EE0 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
+			productName = ComposableArchitecture;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = FD4F42F13CE775C7B8458117 /* Project object */;
 }

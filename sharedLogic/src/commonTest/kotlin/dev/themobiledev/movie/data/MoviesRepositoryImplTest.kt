@@ -188,22 +188,4 @@ class MoviesRepositoryImplTest {
         assertEquals(1, details.genres.size)
         assertEquals("Action", details.genres.first().name)
     }
-
-    @Test
-    fun searchMovies_sendsQueryAndPageAsRequestParameters() = runTest {
-        var capturedUrl = ""
-        val engine = MockEngine { request ->
-            capturedUrl = request.url.toString()
-            respond(
-                content = """{"page": 1, "results": [], "total_pages": 1, "total_results": 0}""",
-                status = HttpStatusCode.OK,
-                headers = headersOf(HttpHeaders.ContentType, "application/json"),
-            )
-        }
-
-        repositoryWith(engine).searchMovies(query = "matrix", page = 2)
-
-        assertEquals(true, capturedUrl.contains("query=matrix"))
-        assertEquals(true, capturedUrl.contains("page=2"))
-    }
 }

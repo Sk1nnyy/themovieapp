@@ -12,6 +12,7 @@
 
 # Package Files #
 *.jar
+!gradle/wrapper/gradle-wrapper.jar
 *.war
 *.nar
 *.ear
@@ -30,3 +31,9 @@ build/
 .gradle/
 
 .idea/
+
+# Xcode
+xcuserdata/
+*.xcuserstate
+.DS_Store
+DerivedData/

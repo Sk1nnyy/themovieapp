@@ -1,27 +1,21 @@
 package dev.themobiledev.movie.theme
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
-private val DeepBlueBackground = Color(0xFF0B1D3A)
-private val CardBlueGray = Color(0xFF2C3B54)
-private val OnColor = Color.White
-
-private val MovieColorScheme = darkColorScheme(
-    background = DeepBlueBackground,
-    onBackground = OnColor,
-    surface = CardBlueGray,
-    onSurface = OnColor,
-    surfaceVariant = CardBlueGray,
-    onSurfaceVariant = OnColor,
-)
+val FavoriteRed = Color(0xFFFF3B30)
+val RatingYellow = Color(0xFFFFCC00)
 
 @Composable
 fun MovieTheme(content: @Composable () -> Unit) {
+    val colorScheme = if (isSystemInDarkTheme()) darkColorScheme() else lightColorScheme()
+
     MaterialTheme(
-        colorScheme = MovieColorScheme,
+        colorScheme = colorScheme,
         content = content,
     )
 }

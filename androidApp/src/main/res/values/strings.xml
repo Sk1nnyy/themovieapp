@@ -15,6 +15,10 @@
     <string name="filter_now_playing">Now Playing</string>
     <string name="action_retry">Retry</string>
     <string name="content_description_back">Back</string>
-    <string name="movie_details_rating">★ %1$.1f</string>
+    <string name="movie_details_rating">%1$.1f</string>
     <string name="movie_details_runtime_minutes">%1$d min</string>
+    <string name="movie_details_error_title">Unable to Load Details</string>
+    <string name="movie_details_budget">Budget</string>
+    <string name="movie_details_revenue">Revenue</string>
+    <string name="movie_details_homepage">Homepage</string>
 </resources>

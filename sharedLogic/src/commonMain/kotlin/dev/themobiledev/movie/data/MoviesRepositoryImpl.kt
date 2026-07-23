@@ -21,7 +21,4 @@ class MoviesRepositoryImpl(private val moviesApi: MoviesApi) : MoviesRepository 
 
     override suspend fun getMovieDetails(movieId: Long): Result<MovieDetails> =
         moviesApi.getMovieDetails(movieId).map { it.toDomain() }
-
-    override suspend fun searchMovies(query: String, page: Int): Result<MoviesPage> =
-        moviesApi.searchMovies(query, page).map { it.toDomain() }
 }
