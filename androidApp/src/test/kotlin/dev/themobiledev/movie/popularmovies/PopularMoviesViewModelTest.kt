@@ -52,8 +52,8 @@ class PopularMoviesViewModelTest {
         voteAverage = 5.0,
     )
 
-    private fun page(movies: List<Movie>, page: Int = 1, totalPages: Int = 1) =
-        MoviesPage(movies = movies, page = page, totalPages = totalPages, totalResults = movies.size)
+    private fun page(movies: List<Movie>, page: Int = 1, totalPages: Int = 1, isStale: Boolean = false) =
+        MoviesPage(movies = movies, page = page, totalPages = totalPages, totalResults = movies.size, isStale = isStale)
 
     @Test
     fun initialLoad_emitsLoadingThenPopularMovies() = runTest(mainDispatcher) {
@@ -225,6 +225,46 @@ class PopularMoviesViewModelTest {
 
             val fresh = awaitItem()
             assertEquals(listOf(movie(1, "Fresh Movie")), fresh.movies)
+        }
+    }
+
+    @Test
+    fun loadNextPage_staleThenFreshEmissionForSamePage_replacesRatherThanAccumulates() = runTest(mainDispatcher) {
+        every { repository.getPopularMovies(page = 1, forceRefresh = any()) } returns
+            flowOf(Result.success(page(listOf(movie(1), movie(2)), page = 1, totalPages = 2)))
+
+        val staleGate = CompletableDeferred<Unit>()
+        val freshGate = CompletableDeferred<Unit>()
+        every { repository.getPopularMovies(page = 2, forceRefresh = any()) } returns flow {
+            // Stale cache hit for page 2, followed by a fresh network result where movie(3) has
+            // dropped out of the listing and movie(5) is now new. Each emission is gated so the
+            // isLoadingMore state update isn't coalesced away by the stale emission that follows
+            // it (StateFlow only guarantees collectors see the latest value, not every one).
+            staleGate.await()
+            emit(Result.success(page(listOf(movie(3), movie(4)), page = 2, totalPages = 2, isStale = true)))
+            freshGate.await()
+            emit(Result.success(page(listOf(movie(4), movie(5)), page = 2, totalPages = 2)))
+        }
+
+        val viewModel = PopularMoviesViewModel(repository, favoritesRepository)
+
+        viewModel.state.test {
+            assertEquals(listOf(movie(1), movie(2)), awaitItem().movies)
+
+            viewModel.handleIntent(PopularMoviesIntent.LoadNextPage)
+            assertTrue(awaitItem().isLoadingMore)
+
+            staleGate.complete(Unit)
+            val stale = awaitItem()
+            assertEquals(listOf(movie(1), movie(2), movie(3), movie(4)), stale.movies)
+            assertTrue(stale.isOffline)
+
+            freshGate.complete(Unit)
+            val fresh = awaitItem()
+            // movie(3) must not linger from the stale emission once the fresh page-2 result,
+            // which no longer contains it, arrives.
+            assertEquals(listOf(movie(1), movie(2), movie(4), movie(5)), fresh.movies)
+            assertTrue(!fresh.isOffline)
         }
     }
 

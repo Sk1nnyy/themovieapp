@@ -46,7 +46,15 @@ private val movieDetailPredictivePopTransition: AnimatedContentTransitionScope<S
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun MovieNavHost(modifier: Modifier = Modifier) {
-    val backStack = rememberSaveable { mutableStateListOf<MovieRoute>(MovieRoute.PopularMoviesList) }
+    // Both tab roots are kept in the backstack permanently, with the visible tab always last.
+    // Switching tabs reorders them in place rather than clearing the backstack: since
+    // rememberViewModelStoreNavEntryDecorator only tears down a route's ViewModelStore once that
+    // route's key disappears from the backstack entirely, keeping the inactive tab's root present
+    // (just not last) is what lets its ViewModel - scroll position, filter, loaded pages - survive
+    // switching away and back, instead of being recreated from scratch on every tab tap.
+    val backStack = rememberSaveable {
+        mutableStateListOf<MovieRoute>(MovieRoute.Favorites, MovieRoute.PopularMoviesList)
+    }
 
     Scaffold(
         modifier = modifier,
@@ -56,8 +64,21 @@ fun MovieNavHost(modifier: Modifier = Modifier) {
                     currentRoute = backStack.lastOrNull(),
                     onTabSelected = { route ->
                         if (backStack.lastOrNull() != route) {
-                            backStack.clear()
-                            backStack.add(route)
+                            // The bottom bar is hidden while a detail screen is on top, so tab
+                            // switches normally happen with just the two tab roots on the stack;
+                            // this loop still pops any pushed screens first as a safety net.
+                            while (backStack.lastOrNull() is MovieRoute.MovieDetail) {
+                                backStack.removeAt(backStack.lastIndex)
+                            }
+                            val existingIndex = backStack.indexOf(route)
+                            if (existingIndex >= 0) {
+                                for (i in existingIndex until backStack.lastIndex) {
+                                    backStack[i] = backStack[i + 1]
+                                }
+                                backStack[backStack.lastIndex] = route
+                            } else {
+                                backStack.add(route)
+                            }
                         }
                     },
                 )

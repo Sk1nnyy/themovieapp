@@ -189,4 +189,28 @@ class MovieDetailsViewModelTest {
             assertEquals(freshDetails, fresh.movieDetails)
         }
     }
+
+    @Test
+    fun staleCachedDetails_setIsOffline_clearedOnceFreshDetailsArrive() = runTest(mainDispatcher) {
+        val staleDetails = details(1).copy(isStale = true)
+        val freshDetails = details(1).copy(isStale = false)
+        val networkGate = CompletableDeferred<Unit>()
+        every { repository.getMovieDetails(movieId = 1, forceRefresh = any()) } returns flow {
+            emit(Result.success(staleDetails))
+            networkGate.await()
+            emit(Result.success(freshDetails))
+        }
+
+        val viewModel = MovieDetailsViewModel(movieId = 1, moviesRepository = repository, favoritesRepository = favoritesRepository)
+
+        viewModel.state.test {
+            val stale = awaitItem()
+            assertTrue(stale.isOffline)
+
+            networkGate.complete(Unit)
+
+            val fresh = awaitItem()
+            assertTrue(!fresh.isOffline)
+        }
+    }
 }

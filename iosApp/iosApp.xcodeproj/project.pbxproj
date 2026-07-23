@@ -598,14 +598,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		C729728F0391EA011E568835 /* XCRemoteSwiftPackageReference "KMP-NativeCoroutines" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/rickclephas/KMP-NativeCoroutines.git";
-			requirement = {
-				kind = exactVersion;
-				version = 1.0.5;
-			};
-		};
 		320EAA9BC8322D119FBF785E /* XCRemoteSwiftPackageReference "xctest-dynamic-overlay" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/pointfreeco/xctest-dynamic-overlay";
@@ -646,14 +638,17 @@
 				minimumVersion = 1.9.1;
 			};
 		};
+		C729728F0391EA011E568835 /* XCRemoteSwiftPackageReference "KMP-NativeCoroutines" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/rickclephas/KMP-NativeCoroutines.git";
+			requirement = {
+				kind = exactVersion;
+				version = 1.0.5;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		8A999D4114431F945FBCCA3A /* KMPNativeCoroutinesAsync */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = C729728F0391EA011E568835 /* XCRemoteSwiftPackageReference "KMP-NativeCoroutines" */;
-			productName = KMPNativeCoroutinesAsync;
-		};
 		20E873E7D2C74EA181F1FF71 /* ComposableArchitecture */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = AD7FB38BCE4F4F3993440EE0 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
@@ -663,6 +658,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 320EAA9BC8322D119FBF785E /* XCRemoteSwiftPackageReference "xctest-dynamic-overlay" */;
 			productName = IssueReporting;
+		};
+		8A999D4114431F945FBCCA3A /* KMPNativeCoroutinesAsync */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C729728F0391EA011E568835 /* XCRemoteSwiftPackageReference "KMP-NativeCoroutines" */;
+			productName = KMPNativeCoroutinesAsync;
 		};
 		B1620B9A446F51AD35C902A2 /* Dependencies */ = {
 			isa = XCSwiftPackageProductDependency;

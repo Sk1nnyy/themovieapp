@@ -7,6 +7,7 @@ data class MovieDetailsState(
     val movieDetails: MovieDetails? = null,
     val isFavorite: Boolean = false,
     val error: String? = null,
+    val isOffline: Boolean = false,
 )
 
 sealed interface MovieDetailsIntent {

@@ -4,7 +4,7 @@ import XCTest
 
 @MainActor
 final class MovieDetailFeatureTests: XCTestCase {
-    private func details(id: Int64, title: String? = nil) -> MovieDetails {
+    private func details(id: Int64, title: String? = nil, isStale: Bool = false) -> MovieDetails {
         MovieDetails(
             id: id,
             title: title ?? "Movie \(id)",
@@ -19,7 +19,8 @@ final class MovieDetailFeatureTests: XCTestCase {
             backdropPath: nil,
             releaseDate: nil,
             voteAverage: 5.0,
-            voteCount: 0
+            voteCount: 0,
+            isStale: isStale
         )
     }
 
@@ -115,6 +116,38 @@ final class MovieDetailFeatureTests: XCTestCase {
         }
         await store.receive(.detailsResponse(.success(freshDetails))) {
             $0.movieDetails = freshDetails
+        }
+    }
+
+    func testTask_staleCachedDetails_setsIsOffline_clearedOnceFreshDetailsArrive() async {
+        let movie = Movie.mock(id: 1)
+        let staleDetails = details(id: 1, title: "Stale Title", isStale: true)
+        let freshDetails = details(id: 1, title: "Fresh Title")
+        let store = TestStore(initialState: MovieDetailFeature.State(movie: movie)) {
+            MovieDetailFeature()
+        } withDependencies: {
+            $0.moviesClient.getMovieDetails = { _, _ in
+                AsyncThrowingStream { continuation in
+                    continuation.yield(staleDetails)
+                    continuation.yield(freshDetails)
+                    continuation.finish()
+                }
+            }
+            $0.favoritesClient.isFavorite = { _ in false }
+        }
+
+        await store.send(.task) {
+            $0.isLoading = true
+        }
+        await store.receive(.isFavoriteResponse(.success(false)))
+        await store.receive(.detailsResponse(.success(staleDetails))) {
+            $0.isLoading = false
+            $0.movieDetails = staleDetails
+            $0.isOffline = true
+        }
+        await store.receive(.detailsResponse(.success(freshDetails))) {
+            $0.movieDetails = freshDetails
+            $0.isOffline = false
         }
     }
 

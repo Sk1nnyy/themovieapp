@@ -29,7 +29,7 @@ struct MovieGridItem: View {
 
     @ViewBuilder
     private var posterImage: some View {
-        AsyncImage(url: movie.posterURL) { phase in
+        CachedAsyncImage(url: movie.posterURL) { phase in
             switch phase {
             case .success(let image):
                 image.resizable().aspectRatio(2.0 / 3.0, contentMode: .fill)

@@ -14,6 +14,7 @@ struct PopularMoviesFeature {
         var selectedFilter: MovieFilter = .popular
         var isFilterSheetPresented = false
         var favoriteIds: Set<Int64> = []
+        var isOffline = false
         var path = StackState<MoviesPath.State>()
 
         var canLoadMore: Bool { currentPage < totalPages }
@@ -129,6 +130,7 @@ struct PopularMoviesFeature {
                 state.currentPage = page.page
                 state.totalPages = page.totalPages
                 state.errorMessage = nil
+                state.isOffline = page.isStale
                 return .none
 
             case let .moviesResponse(.failure(error)):

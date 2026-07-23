@@ -65,7 +65,9 @@ class MovieDetailsViewModel(
             moviesRepository.getMovieDetails(movieId).collect { result ->
                 result
                     .onSuccess { details ->
-                        state.update { it.copy(isLoading = false, movieDetails = details, error = null) }
+                        state.update {
+                            it.copy(isLoading = false, movieDetails = details, error = null, isOffline = details.isStale)
+                        }
                     }
                     .onFailure { throwable ->
                         val message = throwable.message ?: "Unable to load movie details"

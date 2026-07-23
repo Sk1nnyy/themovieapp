@@ -30,6 +30,11 @@ class PopularMoviesViewModel(
 
     private var loadJob: Job? = null
 
+    // Keyed by page number so a page that's re-emitted (stale cache hit, then a fresh network
+    // result for the same page) replaces its own slice instead of merging on top of it - a plain
+    // running list with id-based dedup can't tell "this page changed" from "this is a new page".
+    private val pagesByNumber = sortedMapOf<Int, List<Movie>>()
+
     init {
         handleIntent(PopularMoviesIntent.LoadPopularMovies)
         favoritesRepository.observeFavorites()
@@ -62,6 +67,7 @@ class PopularMoviesViewModel(
     }
 
     private fun onFilterSelected(filter: MovieFilter) {
+        pagesByNumber.clear()
         state.update {
             it.copy(
                 selectedFilter = filter,
@@ -109,19 +115,20 @@ class PopularMoviesViewModel(
     }
 
     private fun applyMoviesPage(moviesPage: MoviesPage, requestedPage: Int) {
+        if (requestedPage == 1) pagesByNumber.clear()
+        pagesByNumber[requestedPage] = moviesPage.movies
+
         state.update {
             it.copy(
                 isLoading = false,
                 isLoadingMore = false,
-                movies = if (requestedPage == 1) {
-                    moviesPage.movies
-                } else {
-                    val existingIds = it.movies.mapTo(HashSet()) { movie -> movie.id }
-                    it.movies + moviesPage.movies.filterNot { movie -> movie.id in existingIds }
-                },
+                // distinctBy guards against a duplicate LazyVerticalGrid key crash in the (rare)
+                // case the same movie id appears on two different pages after TMDB's listing shifts.
+                movies = pagesByNumber.values.flatten().distinctBy { movie -> movie.id },
                 currentPage = moviesPage.page,
                 totalPages = moviesPage.totalPages,
                 error = null,
+                isOffline = moviesPage.isStale,
             )
         }
     }

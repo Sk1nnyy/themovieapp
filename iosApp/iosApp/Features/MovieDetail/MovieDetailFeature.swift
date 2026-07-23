@@ -9,6 +9,7 @@ struct MovieDetailFeature {
         var movieDetails: MovieDetails?
         var isFavorite = false
         var errorMessage: String?
+        var isOffline = false
     }
 
     enum Action: Equatable {
@@ -62,6 +63,7 @@ struct MovieDetailFeature {
                 state.isLoading = false
                 state.movieDetails = details
                 state.errorMessage = nil
+                state.isOffline = details.isStale
                 return .none
 
             case let .detailsResponse(.failure(error)):

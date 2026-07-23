@@ -43,6 +43,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.themobiledev.movie.R
+import dev.themobiledev.movie.components.OfflineBanner
 import dev.themobiledev.movie.domain.Movie
 import dev.themobiledev.movie.popularmovies.components.PopularMovieItem
 import dev.themobiledev.movie.theme.MovieTheme
@@ -113,6 +114,10 @@ private fun PopularMoviesListContent(
                     contentDescription = stringResource(R.string.content_description_filters_button),
                 )
             }
+        }
+
+        if (state.isOffline && state.movies.isNotEmpty()) {
+            OfflineBanner()
         }
 
         Box(modifier = Modifier.fillMaxSize()) {

@@ -27,6 +27,41 @@ struct MovieDetails: Equatable, Sendable {
     let releaseDate: String?
     let voteAverage: Double
     let voteCount: Int
+    let isStale: Bool
+
+    init(
+        id: Int64,
+        title: String,
+        overview: String,
+        tagline: String?,
+        runtime: Int?,
+        budget: Int64,
+        revenue: Int64,
+        homepage: String?,
+        genres: [Genre],
+        posterPath: String?,
+        backdropPath: String?,
+        releaseDate: String?,
+        voteAverage: Double,
+        voteCount: Int,
+        isStale: Bool = false
+    ) {
+        self.id = id
+        self.title = title
+        self.overview = overview
+        self.tagline = tagline
+        self.runtime = runtime
+        self.budget = budget
+        self.revenue = revenue
+        self.homepage = homepage
+        self.genres = genres
+        self.posterPath = posterPath
+        self.backdropPath = backdropPath
+        self.releaseDate = releaseDate
+        self.voteAverage = voteAverage
+        self.voteCount = voteCount
+        self.isStale = isStale
+    }
 
     var posterURL: URL? {
         guard let posterPath else { return nil }
@@ -50,7 +85,8 @@ extension MovieDetails {
             backdropPath: kotlin.backdropPath,
             releaseDate: kotlin.releaseDate,
             voteAverage: kotlin.voteAverage,
-            voteCount: Int(kotlin.voteCount)
+            voteCount: Int(kotlin.voteCount),
+            isStale: kotlin.isStale
         )
     }
 

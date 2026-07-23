@@ -20,6 +20,7 @@ data class PopularMoviesState(
     val selectedFilter: MovieFilter = MovieFilter.Popular,
     val isFilterSheetVisible: Boolean = false,
     val favoriteIds: Set<Long> = emptySet(),
+    val isOffline: Boolean = false,
 ) {
     val canLoadMore: Boolean get() = currentPage < totalPages
 }

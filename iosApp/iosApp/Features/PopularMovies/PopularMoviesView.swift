@@ -60,25 +60,31 @@ struct PopularMoviesView: View {
                     .buttonStyle(.borderedProminent)
             }
         } else {
-            ScrollView {
-                LazyVGrid(columns: columns, spacing: 24) {
-                    ForEach(store.movies) { movie in
-                        MovieGridItem(
-                            movie: movie,
-                            isFavorite: store.favoriteIds.contains(movie.id),
-                            onTap: { store.send(.movieTapped(movie)) },
-                            onFavoriteTap: { store.send(.favoriteTapped(movie)) }
-                        )
-                        .matchedTransitionSource(id: movie.id, in: heroTransition)
-                        .onAppear { store.send(.loadNextPageIfNeeded(currentItem: movie)) }
-                    }
+            VStack(spacing: 0) {
+                if store.isOffline {
+                    OfflineBanner()
                 }
-                .padding(16)
 
-                if store.isLoadingMore {
-                    ProgressView()
-                        .padding()
-                        .frame(maxWidth: .infinity)
+                ScrollView {
+                    LazyVGrid(columns: columns, spacing: 24) {
+                        ForEach(store.movies) { movie in
+                            MovieGridItem(
+                                movie: movie,
+                                isFavorite: store.favoriteIds.contains(movie.id),
+                                onTap: { store.send(.movieTapped(movie)) },
+                                onFavoriteTap: { store.send(.favoriteTapped(movie)) }
+                            )
+                            .matchedTransitionSource(id: movie.id, in: heroTransition)
+                            .onAppear { store.send(.loadNextPageIfNeeded(currentItem: movie)) }
+                        }
+                    }
+                    .padding(16)
+
+                    if store.isLoadingMore {
+                        ProgressView()
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                    }
                 }
             }
         }

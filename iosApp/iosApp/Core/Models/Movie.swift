@@ -44,6 +44,15 @@ struct MoviesPage: Equatable, Sendable {
     let page: Int
     let totalPages: Int
     let totalResults: Int
+    let isStale: Bool
+
+    init(movies: [Movie], page: Int, totalPages: Int, totalResults: Int, isStale: Bool = false) {
+        self.movies = movies
+        self.page = page
+        self.totalPages = totalPages
+        self.totalResults = totalResults
+        self.isStale = isStale
+    }
 }
 
 extension MoviesPage {
@@ -52,7 +61,8 @@ extension MoviesPage {
             movies: kotlin.movies.map(Movie.init),
             page: Int(kotlin.page),
             totalPages: Int(kotlin.totalPages),
-            totalResults: Int(kotlin.totalResults)
+            totalResults: Int(kotlin.totalResults),
+            isStale: kotlin.isStale
         )
     }
 }

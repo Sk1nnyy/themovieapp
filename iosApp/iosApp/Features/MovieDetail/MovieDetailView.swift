@@ -10,6 +10,10 @@ struct MovieDetailView: View {
                 posterImage
                     .frame(maxWidth: .infinity)
 
+                if store.isOffline && store.movieDetails != nil {
+                    OfflineBanner()
+                }
+
                 Text(store.movie.title)
                     .font(.title2.bold())
 
@@ -87,7 +91,7 @@ struct MovieDetailView: View {
 
     @ViewBuilder
     private var posterImage: some View {
-        AsyncImage(url: store.movieDetails?.posterURL ?? store.movie.posterURL) { phase in
+        CachedAsyncImage(url: store.movieDetails?.posterURL ?? store.movie.posterURL) { phase in
             switch phase {
             case .success(let image):
                 image.resizable().aspectRatio(2.0 / 3.0, contentMode: .fit)

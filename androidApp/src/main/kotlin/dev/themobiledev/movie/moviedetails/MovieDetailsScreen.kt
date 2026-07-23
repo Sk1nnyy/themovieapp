@@ -62,6 +62,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.SubcomposeAsyncImage
 import dev.themobiledev.movie.Constants.POSTER_BASE_URL
 import dev.themobiledev.movie.R
+import dev.themobiledev.movie.components.OfflineBanner
 import dev.themobiledev.movie.domain.Genre
 import dev.themobiledev.movie.domain.MovieDetails
 import dev.themobiledev.movie.navigation.moviePosterSharedElementKey
@@ -167,6 +168,10 @@ private fun MovieDetailsContent(
                 sharedTransitionScope = sharedTransitionScope,
                 animatedVisibilityScope = animatedVisibilityScope,
             )
+
+            if (state.isOffline && state.movieDetails != null) {
+                OfflineBanner()
+            }
 
             when {
                 state.isLoading && state.movieDetails == null -> {
