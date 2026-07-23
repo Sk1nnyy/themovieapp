@@ -176,14 +176,24 @@ struct PopularMoviesFeature {
 
         return .run { send in
             do {
-                let result: MoviesPage
                 switch filter {
-                case .popular: result = try await moviesClient.getPopularMovies(page)
-                case .upcoming: result = try await moviesClient.getUpcomingMovies(page)
-                case .topRated: result = try await moviesClient.getTopRatedMovies(page)
-                case .nowPlaying: result = try await moviesClient.getNowPlayingMovies(page)
+                case .popular:
+                    for try await page in moviesClient.getPopularMovies(page, false) {
+                        await send(.moviesResponse(.success(page)))
+                    }
+                case .upcoming:
+                    for try await page in moviesClient.getUpcomingMovies(page, false) {
+                        await send(.moviesResponse(.success(page)))
+                    }
+                case .topRated:
+                    for try await page in moviesClient.getTopRatedMovies(page, false) {
+                        await send(.moviesResponse(.success(page)))
+                    }
+                case .nowPlaying:
+                    for try await page in moviesClient.getNowPlayingMovies(page, false) {
+                        await send(.moviesResponse(.success(page)))
+                    }
                 }
-                await send(.moviesResponse(.success(result)))
             } catch {
                 await send(.moviesResponse(.failure(error.equatable)))
             }

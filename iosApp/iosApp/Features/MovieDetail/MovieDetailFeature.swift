@@ -91,8 +91,9 @@ struct MovieDetailFeature {
         state.errorMessage = nil
         return .run { [movieId = state.movie.id] send in
             do {
-                let details = try await moviesClient.getMovieDetails(movieId)
-                await send(.detailsResponse(.success(details)))
+                for try await details in moviesClient.getMovieDetails(movieId, false) {
+                    await send(.detailsResponse(.success(details)))
+                }
             } catch {
                 await send(.detailsResponse(.failure(error.equatable)))
             }

@@ -1,0 +1,69 @@
+CREATE TABLE cachedMoviePageMeta (
+    category TEXT NOT NULL,
+    page INTEGER NOT NULL,
+    totalPages INTEGER NOT NULL,
+    totalResults INTEGER NOT NULL,
+    cachedAt INTEGER NOT NULL,
+    PRIMARY KEY (category, page)
+);
+
+CREATE TABLE cachedMoviePageItem (
+    category TEXT NOT NULL,
+    page INTEGER NOT NULL,
+    position INTEGER NOT NULL,
+    movieId INTEGER NOT NULL,
+    title TEXT NOT NULL,
+    overview TEXT NOT NULL,
+    posterPath TEXT,
+    releaseDate TEXT,
+    voteAverage REAL NOT NULL,
+    PRIMARY KEY (category, page, movieId)
+);
+
+CREATE TABLE cachedMovieDetails (
+    movieId INTEGER NOT NULL PRIMARY KEY,
+    title TEXT NOT NULL,
+    overview TEXT NOT NULL,
+    tagline TEXT,
+    runtime INTEGER,
+    budget INTEGER NOT NULL,
+    revenue INTEGER NOT NULL,
+    homepage TEXT,
+    genresJson TEXT NOT NULL,
+    posterPath TEXT,
+    backdropPath TEXT,
+    releaseDate TEXT,
+    voteAverage REAL NOT NULL,
+    voteCount INTEGER NOT NULL,
+    cachedAt INTEGER NOT NULL
+);
+
+upsertPageMeta:
+INSERT OR REPLACE INTO cachedMoviePageMeta(category, page, totalPages, totalResults, cachedAt)
+VALUES (?, ?, ?, ?, ?);
+
+selectPageMeta:
+SELECT totalPages, totalResults, cachedAt FROM cachedMoviePageMeta
+WHERE category = :category AND page = :page;
+
+deletePageItems:
+DELETE FROM cachedMoviePageItem WHERE category = :category AND page = :page;
+
+insertPageItem:
+INSERT OR REPLACE INTO cachedMoviePageItem(category, page, position, movieId, title, overview, posterPath, releaseDate, voteAverage)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+selectPageItems:
+SELECT movieId, title, overview, posterPath, releaseDate, voteAverage
+FROM cachedMoviePageItem
+WHERE category = :category AND page = :page
+ORDER BY position ASC;
+
+upsertMovieDetails:
+INSERT OR REPLACE INTO cachedMovieDetails(movieId, title, overview, tagline, runtime, budget, revenue, homepage, genresJson, posterPath, backdropPath, releaseDate, voteAverage, voteCount, cachedAt)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+selectMovieDetails:
+SELECT title, overview, tagline, runtime, budget, revenue, homepage, genresJson, posterPath, backdropPath, releaseDate, voteAverage, voteCount, cachedAt
+FROM cachedMovieDetails
+WHERE movieId = :movieId;

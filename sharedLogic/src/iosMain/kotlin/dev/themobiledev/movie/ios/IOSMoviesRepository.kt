@@ -1,30 +1,31 @@
 package dev.themobiledev.movie.ios
 
+import com.rickclephas.kmp.nativecoroutines.NativeCoroutines
 import dev.themobiledev.movie.domain.MovieDetails
 import dev.themobiledev.movie.domain.MoviesPage
 import dev.themobiledev.movie.domain.MoviesRepository
-import dev.themobiledev.movie.network.ApiException
-import kotlin.coroutines.cancellation.CancellationException
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 class IOSMoviesRepository(private val repository: MoviesRepository) {
 
-    @Throws(ApiException::class, CancellationException::class)
-    suspend fun getPopularMovies(page: Int): MoviesPage =
-        repository.getPopularMovies(page).getOrThrow()
+    @NativeCoroutines
+    fun getPopularMovies(page: Int, forceRefresh: Boolean): Flow<MoviesPage> =
+        repository.getPopularMovies(page, forceRefresh).map { it.getOrThrow() }
 
-    @Throws(ApiException::class, CancellationException::class)
-    suspend fun getUpcomingMovies(page: Int): MoviesPage =
-        repository.getUpcomingMovies(page).getOrThrow()
+    @NativeCoroutines
+    fun getUpcomingMovies(page: Int, forceRefresh: Boolean): Flow<MoviesPage> =
+        repository.getUpcomingMovies(page, forceRefresh).map { it.getOrThrow() }
 
-    @Throws(ApiException::class, CancellationException::class)
-    suspend fun getTopRatedMovies(page: Int): MoviesPage =
-        repository.getTopRatedMovies(page).getOrThrow()
+    @NativeCoroutines
+    fun getTopRatedMovies(page: Int, forceRefresh: Boolean): Flow<MoviesPage> =
+        repository.getTopRatedMovies(page, forceRefresh).map { it.getOrThrow() }
 
-    @Throws(ApiException::class, CancellationException::class)
-    suspend fun getNowPlayingMovies(page: Int): MoviesPage =
-        repository.getNowPlayingMovies(page).getOrThrow()
+    @NativeCoroutines
+    fun getNowPlayingMovies(page: Int, forceRefresh: Boolean): Flow<MoviesPage> =
+        repository.getNowPlayingMovies(page, forceRefresh).map { it.getOrThrow() }
 
-    @Throws(ApiException::class, CancellationException::class)
-    suspend fun getMovieDetails(movieId: Long): MovieDetails =
-        repository.getMovieDetails(movieId).getOrThrow()
+    @NativeCoroutines
+    fun getMovieDetails(movieId: Long, forceRefresh: Boolean): Flow<MovieDetails> =
+        repository.getMovieDetails(movieId, forceRefresh).map { it.getOrThrow() }
 }

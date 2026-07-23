@@ -62,14 +62,16 @@ class MovieDetailsViewModel(
         loadJob = viewModelScope.launch {
             state.update { it.copy(isLoading = true, error = null) }
 
-            moviesRepository.getMovieDetails(movieId)
-                .onSuccess { details ->
-                    state.update { it.copy(isLoading = false, movieDetails = details, error = null) }
-                }
-                .onFailure { throwable ->
-                    val message = throwable.message ?: "Unable to load movie details"
-                    state.update { it.copy(isLoading = false, error = message) }
-                }
+            moviesRepository.getMovieDetails(movieId).collect { result ->
+                result
+                    .onSuccess { details ->
+                        state.update { it.copy(isLoading = false, movieDetails = details, error = null) }
+                    }
+                    .onFailure { throwable ->
+                        val message = throwable.message ?: "Unable to load movie details"
+                        state.update { it.copy(isLoading = false, error = message) }
+                    }
+            }
         }
     }
 }

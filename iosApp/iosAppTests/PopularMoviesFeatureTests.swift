@@ -9,7 +9,7 @@ final class PopularMoviesFeatureTests: XCTestCase {
         let store = TestStore(initialState: PopularMoviesFeature.State()) {
             PopularMoviesFeature()
         } withDependencies: {
-            $0.moviesClient.getPopularMovies = { _ in page }
+            $0.moviesClient.getPopularMovies = { _, _ in AsyncThrowingStream { $0.yield(page); $0.finish() } }
             $0.favoritesClient.getFavoriteIds = { [1] }
         }
         await store.send(.task) {
@@ -33,7 +33,7 @@ final class PopularMoviesFeatureTests: XCTestCase {
         ) {
             PopularMoviesFeature()
         } withDependencies: {
-            $0.moviesClient.getPopularMovies = { _ in page }
+            $0.moviesClient.getPopularMovies = { _, _ in AsyncThrowingStream { $0.yield(page); $0.finish() } }
         }
 
         await store.send(.retryTapped) {
@@ -48,6 +48,38 @@ final class PopularMoviesFeatureTests: XCTestCase {
         }
     }
 
+    func testRetryTapped_cachedMoviesShownImmediately_thenUpdatedByNetwork() async {
+        let cachedPage = MoviesPage(movies: [.mock(id: 1, title: "Cached Movie")], page: 1, totalPages: 1, totalResults: 1)
+        let freshPage = MoviesPage(movies: [.mock(id: 1, title: "Fresh Movie")], page: 1, totalPages: 1, totalResults: 1)
+        let store = TestStore(
+            initialState: PopularMoviesFeature.State(errorMessage: "boom")
+        ) {
+            PopularMoviesFeature()
+        } withDependencies: {
+            $0.moviesClient.getPopularMovies = { _, _ in
+                AsyncThrowingStream { continuation in
+                    continuation.yield(cachedPage)
+                    continuation.yield(freshPage)
+                    continuation.finish()
+                }
+            }
+        }
+
+        await store.send(.retryTapped) {
+            $0.isLoading = true
+            $0.errorMessage = nil
+        }
+        await store.receive(.moviesResponse(.success(cachedPage))) {
+            $0.isLoading = false
+            $0.movies = cachedPage.movies
+            $0.currentPage = 1
+            $0.totalPages = 1
+        }
+        await store.receive(.moviesResponse(.success(freshPage))) {
+            $0.movies = freshPage.movies
+        }
+    }
+
     func testFilterSelected_whileRequestInFlight_ignoresStaleResult() async {
         let popularGate = Gate()
         let popularPage = MoviesPage(movies: [.mock(id: 1, title: "Popular Movie")], page: 1, totalPages: 1, totalResults: 1)
@@ -58,11 +90,16 @@ final class PopularMoviesFeatureTests: XCTestCase {
         ) {
             PopularMoviesFeature()
         } withDependencies: {
-            $0.moviesClient.getPopularMovies = { _ in
-                await popularGate.wait()
-                return popularPage
+            $0.moviesClient.getPopularMovies = { _, _ in
+                AsyncThrowingStream { continuation in
+                    Task {
+                        await popularGate.wait()
+                        continuation.yield(popularPage)
+                        continuation.finish()
+                    }
+                }
             }
-            $0.moviesClient.getUpcomingMovies = { _ in upcomingPage }
+            $0.moviesClient.getUpcomingMovies = { _, _ in AsyncThrowingStream { $0.yield(upcomingPage); $0.finish() } }
         }
 
         let staleLoad = await store.send(.retryTapped) {
@@ -111,7 +148,7 @@ final class PopularMoviesFeatureTests: XCTestCase {
         ) {
             PopularMoviesFeature()
         } withDependencies: {
-            $0.moviesClient.getPopularMovies = { _ in nextPage }
+            $0.moviesClient.getPopularMovies = { _, _ in AsyncThrowingStream { $0.yield(nextPage); $0.finish() } }
         }
 
         await store.send(.loadNextPageIfNeeded(currentItem: existing[7])) {

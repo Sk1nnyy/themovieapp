@@ -4,10 +4,10 @@ import XCTest
 
 @MainActor
 final class MovieDetailFeatureTests: XCTestCase {
-    private func details(id: Int64) -> MovieDetails {
+    private func details(id: Int64, title: String? = nil) -> MovieDetails {
         MovieDetails(
             id: id,
-            title: "Movie \(id)",
+            title: title ?? "Movie \(id)",
             overview: "overview",
             tagline: nil,
             runtime: nil,
@@ -29,7 +29,7 @@ final class MovieDetailFeatureTests: XCTestCase {
         let store = TestStore(initialState: MovieDetailFeature.State(movie: movie)) {
             MovieDetailFeature()
         } withDependencies: {
-            $0.moviesClient.getMovieDetails = { _ in movieDetails }
+            $0.moviesClient.getMovieDetails = { _, _ in AsyncThrowingStream { $0.yield(movieDetails); $0.finish() } }
             $0.favoritesClient.isFavorite = { _ in false }
         }
 
@@ -51,7 +51,7 @@ final class MovieDetailFeatureTests: XCTestCase {
         let store = TestStore(initialState: MovieDetailFeature.State(movie: movie)) {
             MovieDetailFeature()
         } withDependencies: {
-            $0.moviesClient.getMovieDetails = { _ in throw TestError() }
+            $0.moviesClient.getMovieDetails = { _, _ in AsyncThrowingStream { $0.finish(throwing: TestError()) } }
             $0.favoritesClient.isFavorite = { _ in false }
         }
 
@@ -74,7 +74,7 @@ final class MovieDetailFeatureTests: XCTestCase {
         ) {
             MovieDetailFeature()
         } withDependencies: {
-            $0.moviesClient.getMovieDetails = { _ in movieDetails }
+            $0.moviesClient.getMovieDetails = { _, _ in AsyncThrowingStream { $0.yield(movieDetails); $0.finish() } }
         }
 
         await store.send(.retryTapped) {
@@ -84,6 +84,37 @@ final class MovieDetailFeatureTests: XCTestCase {
         await store.receive(.detailsResponse(.success(movieDetails))) {
             $0.isLoading = false
             $0.movieDetails = movieDetails
+        }
+    }
+
+    func testRetryTapped_cachedDetailsShownImmediately_thenUpdatedByNetwork() async {
+        let movie = Movie.mock(id: 1)
+        let cachedDetails = details(id: 1, title: "Cached Title")
+        let freshDetails = details(id: 1, title: "Fresh Title")
+        let store = TestStore(
+            initialState: MovieDetailFeature.State(movie: movie, errorMessage: "boom")
+        ) {
+            MovieDetailFeature()
+        } withDependencies: {
+            $0.moviesClient.getMovieDetails = { _, _ in
+                AsyncThrowingStream { continuation in
+                    continuation.yield(cachedDetails)
+                    continuation.yield(freshDetails)
+                    continuation.finish()
+                }
+            }
+        }
+
+        await store.send(.retryTapped) {
+            $0.isLoading = true
+            $0.errorMessage = nil
+        }
+        await store.receive(.detailsResponse(.success(cachedDetails))) {
+            $0.isLoading = false
+            $0.movieDetails = cachedDetails
+        }
+        await store.receive(.detailsResponse(.success(freshDetails))) {
+            $0.movieDetails = freshDetails
         }
     }
 

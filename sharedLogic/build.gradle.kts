@@ -8,6 +8,7 @@ plugins {
     alias(libs.plugins.androidMultiplatformLibrary)
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.buildkonfig)
+    alias(libs.plugins.nativeCoroutines)
     alias(libs.plugins.sqldelight)
 }
 
@@ -67,6 +68,9 @@ kotlin {
     }
     
     sourceSets {
+        all {
+            languageSettings.optIn("kotlin.experimental.ExperimentalObjCName")
+        }
         commonMain {
             dependencies {
                 implementation(libs.ktor.client.core)

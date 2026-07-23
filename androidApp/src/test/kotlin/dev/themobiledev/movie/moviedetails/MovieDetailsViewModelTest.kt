@@ -12,6 +12,7 @@ import io.mockk.mockk
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
@@ -61,7 +62,8 @@ class MovieDetailsViewModelTest {
 
     @Test
     fun onBackClicked_emitsNavigateBackEffect() = runTest(mainDispatcher) {
-        coEvery { repository.getMovieDetails(any()) } returns Result.success(details(1))
+        every { repository.getMovieDetails(movieId = any(), forceRefresh = any()) } returns
+            flowOf(Result.success(details(1)))
 
         val viewModel = MovieDetailsViewModel(movieId = 1, moviesRepository = repository, favoritesRepository = favoritesRepository)
 
@@ -75,9 +77,9 @@ class MovieDetailsViewModelTest {
     @Test
     fun initialLoad_emitsLoadingThenDetails() = runTest(mainDispatcher) {
         val gate = CompletableDeferred<Unit>()
-        coEvery { repository.getMovieDetails(any()) } coAnswers {
+        every { repository.getMovieDetails(movieId = any(), forceRefresh = any()) } returns flow {
             gate.await()
-            Result.success(details(1))
+            emit(Result.success(details(1)))
         }
 
         val viewModel = MovieDetailsViewModel(movieId = 1, moviesRepository = repository, favoritesRepository = favoritesRepository)
@@ -99,9 +101,9 @@ class MovieDetailsViewModelTest {
     @Test
     fun onFailure_setsError() = runTest(mainDispatcher) {
         val gate = CompletableDeferred<Unit>()
-        coEvery { repository.getMovieDetails(any()) } coAnswers {
+        every { repository.getMovieDetails(movieId = any(), forceRefresh = any()) } returns flow {
             gate.await()
-            Result.failure(IllegalStateException("boom"))
+            emit(Result.failure(IllegalStateException("boom")))
         }
 
         val viewModel = MovieDetailsViewModel(movieId = 1, moviesRepository = repository, favoritesRepository = favoritesRepository)
@@ -120,15 +122,16 @@ class MovieDetailsViewModelTest {
 
     @Test
     fun retry_reloadsSuccessfullyAfterFailure() = runTest(mainDispatcher) {
-        coEvery { repository.getMovieDetails(any()) } returns Result.failure(IllegalStateException("boom"))
+        every { repository.getMovieDetails(movieId = any(), forceRefresh = any()) } returns
+            flowOf(Result.failure(IllegalStateException("boom")))
 
         val viewModel = MovieDetailsViewModel(movieId = 1, moviesRepository = repository, favoritesRepository = favoritesRepository)
         assertEquals("boom", viewModel.state.value.error)
 
         val gate = CompletableDeferred<Unit>()
-        coEvery { repository.getMovieDetails(any()) } coAnswers {
+        every { repository.getMovieDetails(movieId = any(), forceRefresh = any()) } returns flow {
             gate.await()
-            Result.success(details(1))
+            emit(Result.success(details(1)))
         }
 
         viewModel.state.test {
@@ -150,7 +153,8 @@ class MovieDetailsViewModelTest {
     @Test
     fun toggleFavorite_delegatesCurrentFavoriteStateToRepository() = runTest(mainDispatcher) {
         val movieDetails = details(1)
-        coEvery { repository.getMovieDetails(any()) } returns Result.success(movieDetails)
+        every { repository.getMovieDetails(movieId = any(), forceRefresh = any()) } returns
+            flowOf(Result.success(movieDetails))
         every { favoritesRepository.observeIsFavorite(any()) } returns flowOf(true)
         coEvery { favoritesRepository.toggleFavorite(any(), any()) } returns Unit
 
@@ -159,5 +163,30 @@ class MovieDetailsViewModelTest {
         viewModel.handleIntent(MovieDetailsIntent.ToggleFavorite)
 
         coVerify(exactly = 1) { favoritesRepository.toggleFavorite(movieDetails.toMovie(), true) }
+    }
+
+    @Test
+    fun initialLoad_cachedDetailsShownImmediately_thenUpdatedByNetwork() = runTest(mainDispatcher) {
+        val cachedDetails = details(1).copy(title = "Cached Title")
+        val freshDetails = details(1).copy(title = "Fresh Title")
+        val networkGate = CompletableDeferred<Unit>()
+        every { repository.getMovieDetails(movieId = 1, forceRefresh = any()) } returns flow {
+            emit(Result.success(cachedDetails))
+            networkGate.await()
+            emit(Result.success(freshDetails))
+        }
+
+        val viewModel = MovieDetailsViewModel(movieId = 1, moviesRepository = repository, favoritesRepository = favoritesRepository)
+
+        viewModel.state.test {
+            val cached = awaitItem()
+            assertTrue(!cached.isLoading)
+            assertEquals(cachedDetails, cached.movieDetails)
+
+            networkGate.complete(Unit)
+
+            val fresh = awaitItem()
+            assertEquals(freshDetails, fresh.movieDetails)
+        }
     }
 }

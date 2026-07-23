@@ -9,9 +9,11 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
@@ -56,9 +58,9 @@ class PopularMoviesViewModelTest {
     @Test
     fun initialLoad_emitsLoadingThenPopularMovies() = runTest(mainDispatcher) {
         val gate = CompletableDeferred<Unit>()
-        coEvery { repository.getPopularMovies(any()) } coAnswers {
+        every { repository.getPopularMovies(page = any(), forceRefresh = any()) } returns flow {
             gate.await()
-            Result.success(page(listOf(movie(1))))
+            emit(Result.success(page(listOf(movie(1)))))
         }
 
         val viewModel = PopularMoviesViewModel(repository, favoritesRepository)
@@ -75,17 +77,17 @@ class PopularMoviesViewModelTest {
             assertTrue(!loaded.isLoading)
         }
 
-        coVerify(exactly = 1) { repository.getPopularMovies(page = 1) }
+        verify(exactly = 1) { repository.getPopularMovies(page = 1, forceRefresh = any()) }
     }
 
     @Test
     fun loadNextPage_emitsLoadingMoreThenAppendsDedupedMovies() = runTest(mainDispatcher) {
         val secondPageGate = CompletableDeferred<Unit>()
-        coEvery { repository.getPopularMovies(page = 1) } returns
-            Result.success(page(listOf(movie(1), movie(2)), page = 1, totalPages = 2))
-        coEvery { repository.getPopularMovies(page = 2) } coAnswers {
+        every { repository.getPopularMovies(page = 1, forceRefresh = any()) } returns
+            flowOf(Result.success(page(listOf(movie(1), movie(2)), page = 1, totalPages = 2)))
+        every { repository.getPopularMovies(page = 2, forceRefresh = any()) } returns flow {
             secondPageGate.await()
-            Result.success(page(listOf(movie(2), movie(3)), page = 2, totalPages = 2))
+            emit(Result.success(page(listOf(movie(2), movie(3)), page = 2, totalPages = 2)))
         }
 
         val viewModel = PopularMoviesViewModel(repository, favoritesRepository)
@@ -107,12 +109,12 @@ class PopularMoviesViewModelTest {
     @Test
     fun switchingFilterWhileRequestInFlight_ignoresStaleResult() = runTest(mainDispatcher) {
         val popularGate = CompletableDeferred<Unit>()
-        coEvery { repository.getPopularMovies(any()) } coAnswers {
+        every { repository.getPopularMovies(page = any(), forceRefresh = any()) } returns flow {
             popularGate.await()
-            Result.success(page(listOf(movie(1, "Popular Movie"))))
+            emit(Result.success(page(listOf(movie(1, "Popular Movie")))))
         }
-        coEvery { repository.getUpcomingMovies(any()) } returns
-            Result.success(page(listOf(movie(2, "Upcoming Movie"))))
+        every { repository.getUpcomingMovies(page = any(), forceRefresh = any()) } returns
+            flowOf(Result.success(page(listOf(movie(2, "Upcoming Movie")))))
 
         val viewModel = PopularMoviesViewModel(repository, favoritesRepository)
 
@@ -135,16 +137,16 @@ class PopularMoviesViewModelTest {
             cancelAndIgnoreRemainingEvents()
         }
 
-        coVerify(exactly = 1) { repository.getPopularMovies(any()) }
-        coVerify(exactly = 1) { repository.getUpcomingMovies(any()) }
+        verify(exactly = 1) { repository.getPopularMovies(page = any(), forceRefresh = any()) }
+        verify(exactly = 1) { repository.getUpcomingMovies(page = any(), forceRefresh = any()) }
     }
 
     @Test
     fun onFailure_setsErrorAndEmitsShowErrorEffect() = runTest(mainDispatcher) {
         val gate = CompletableDeferred<Unit>()
-        coEvery { repository.getPopularMovies(any()) } coAnswers {
+        every { repository.getPopularMovies(page = any(), forceRefresh = any()) } returns flow {
             gate.await()
-            Result.failure(IllegalStateException("boom"))
+            emit(Result.failure(IllegalStateException("boom")))
         }
 
         val viewModel = PopularMoviesViewModel(repository, favoritesRepository)
@@ -161,7 +163,8 @@ class PopularMoviesViewModelTest {
 
     @Test
     fun onMovieClicked_emitsNavigateToDetailEffect() = runTest(mainDispatcher) {
-        coEvery { repository.getPopularMovies(any()) } returns Result.success(page(listOf(movie(1))))
+        every { repository.getPopularMovies(page = any(), forceRefresh = any()) } returns
+            flowOf(Result.success(page(listOf(movie(1)))))
 
         val viewModel = PopularMoviesViewModel(repository, favoritesRepository)
         val clicked = movie(1)
@@ -175,7 +178,8 @@ class PopularMoviesViewModelTest {
 
     @Test
     fun onFavoriteClicked_togglesWithNotFavoritedWhenNotAlreadyFavorited() = runTest(mainDispatcher) {
-        coEvery { repository.getPopularMovies(any()) } returns Result.success(page(listOf(movie(1))))
+        every { repository.getPopularMovies(page = any(), forceRefresh = any()) } returns
+            flowOf(Result.success(page(listOf(movie(1)))))
         coEvery { favoritesRepository.toggleFavorite(any(), any()) } returns Unit
 
         val viewModel = PopularMoviesViewModel(repository, favoritesRepository)
@@ -190,7 +194,8 @@ class PopularMoviesViewModelTest {
     fun onFavoriteClicked_togglesWithFavoritedWhenAlreadyFavorited() = runTest(mainDispatcher) {
         val favorite = movie(1)
         every { favoritesRepository.observeFavorites() } returns flowOf(listOf(favorite))
-        coEvery { repository.getPopularMovies(any()) } returns Result.success(page(listOf(favorite)))
+        every { repository.getPopularMovies(page = any(), forceRefresh = any()) } returns
+            flowOf(Result.success(page(listOf(favorite))))
         coEvery { favoritesRepository.toggleFavorite(any(), any()) } returns Unit
 
         val viewModel = PopularMoviesViewModel(repository, favoritesRepository)
@@ -198,5 +203,50 @@ class PopularMoviesViewModelTest {
         viewModel.handleIntent(PopularMoviesIntent.OnFavoriteClicked(favorite))
 
         coVerify(exactly = 1) { favoritesRepository.toggleFavorite(favorite, true) }
+    }
+
+    @Test
+    fun initialLoad_cachedMoviesShownImmediately_thenUpdatedByNetwork() = runTest(mainDispatcher) {
+        val networkGate = CompletableDeferred<Unit>()
+        every { repository.getPopularMovies(page = 1, forceRefresh = any()) } returns flow {
+            emit(Result.success(page(listOf(movie(1, "Cached Movie")))))
+            networkGate.await()
+            emit(Result.success(page(listOf(movie(1, "Fresh Movie")))))
+        }
+
+        val viewModel = PopularMoviesViewModel(repository, favoritesRepository)
+
+        viewModel.state.test {
+            val cached = awaitItem()
+            assertTrue(!cached.isLoading)
+            assertEquals(listOf(movie(1, "Cached Movie")), cached.movies)
+
+            networkGate.complete(Unit)
+
+            val fresh = awaitItem()
+            assertEquals(listOf(movie(1, "Fresh Movie")), fresh.movies)
+        }
+    }
+
+    @Test
+    fun initialLoad_noCachedMovies_onlyEmitsNetworkResult() = runTest(mainDispatcher) {
+        val gate = CompletableDeferred<Unit>()
+        every { repository.getPopularMovies(page = any(), forceRefresh = any()) } returns flow {
+            gate.await()
+            emit(Result.success(page(listOf(movie(1)))))
+        }
+
+        val viewModel = PopularMoviesViewModel(repository, favoritesRepository)
+
+        viewModel.state.test {
+            val loading = awaitItem()
+            assertTrue(loading.isLoading)
+            assertTrue(loading.movies.isEmpty())
+
+            gate.complete(Unit)
+
+            val loaded = awaitItem()
+            assertEquals(listOf(movie(1)), loaded.movies)
+        }
     }
 }

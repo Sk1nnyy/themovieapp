@@ -22,6 +22,7 @@ kotlinx-serialization = "1.11.0"
 ktor = "3.5.1"
 material3 = "1.11.0-alpha07"
 mockk = "1.14.11"
+nativeCoroutines = "1.0.5"
 sqldelight = "2.1.0"
 turbine = "1.2.1"
 
@@ -75,4 +76,5 @@ composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "composeMul
 composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+nativeCoroutines = { id = "com.rickclephas.kmp.nativecoroutines", version.ref = "nativeCoroutines" }
 sqldelight = { id = "app.cash.sqldelight", version.ref = "sqldelight" }

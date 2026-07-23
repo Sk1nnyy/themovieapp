@@ -5,4 +5,5 @@ data class MoviesPage(
     val page: Int,
     val totalPages: Int,
     val totalResults: Int,
+    val isStale: Boolean = false,
 )

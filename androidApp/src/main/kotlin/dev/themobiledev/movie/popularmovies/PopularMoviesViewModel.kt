@@ -4,12 +4,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.themobiledev.movie.domain.FavoritesRepository
 import dev.themobiledev.movie.domain.Movie
+import dev.themobiledev.movie.domain.MoviesPage
 import dev.themobiledev.movie.domain.MoviesRepository
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
@@ -87,36 +89,40 @@ class PopularMoviesViewModel(
                 if (page == 1) it.copy(isLoading = true, error = null) else it.copy(isLoadingMore = true, error = null)
             }
 
-            val result = when (filter) {
+            val flow = when (filter) {
                 MovieFilter.Popular -> moviesRepository.getPopularMovies(page = page)
                 MovieFilter.Upcoming -> moviesRepository.getUpcomingMovies(page = page)
                 MovieFilter.TopRated -> moviesRepository.getTopRatedMovies(page = page)
                 MovieFilter.NowPlaying -> moviesRepository.getNowPlayingMovies(page = page)
             }
 
-            result
-                .onSuccess { moviesPage ->
-                    state.update {
-                        it.copy(
-                            isLoading = false,
-                            isLoadingMore = false,
-                            movies = if (page == 1) {
-                                moviesPage.movies
-                            } else {
-                                val existingIds = it.movies.mapTo(HashSet()) { movie -> movie.id }
-                                it.movies + moviesPage.movies.filterNot { movie -> movie.id in existingIds }
-                            },
-                            currentPage = moviesPage.page,
-                            totalPages = moviesPage.totalPages,
-                            error = null,
-                        )
+            flow.collect { result ->
+                result
+                    .onSuccess { moviesPage -> applyMoviesPage(moviesPage, page) }
+                    .onFailure { throwable ->
+                        val message = throwable.message ?: "Unable to load movies"
+                        state.update { it.copy(isLoading = false, isLoadingMore = false, error = message) }
+                        effect.emit(PopularMoviesEffect.ShowError(message))
                     }
-                }
-                .onFailure { throwable ->
-                    val message = throwable.message ?: "Unable to load movies"
-                    state.update { it.copy(isLoading = false, isLoadingMore = false, error = message) }
-                    effect.emit(PopularMoviesEffect.ShowError(message))
-                }
+            }
+        }
+    }
+
+    private fun applyMoviesPage(moviesPage: MoviesPage, requestedPage: Int) {
+        state.update {
+            it.copy(
+                isLoading = false,
+                isLoadingMore = false,
+                movies = if (requestedPage == 1) {
+                    moviesPage.movies
+                } else {
+                    val existingIds = it.movies.mapTo(HashSet()) { movie -> movie.id }
+                    it.movies + moviesPage.movies.filterNot { movie -> movie.id in existingIds }
+                },
+                currentPage = moviesPage.page,
+                totalPages = moviesPage.totalPages,
+                error = null,
+            )
         }
     }
 }
