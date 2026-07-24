@@ -86,7 +86,5 @@ xcodebuild test -project iosApp.xcodeproj -scheme iosApp -destination 'platform=
 - Add search and pull-to-refresh — both are the most obviously "missing" features relative to what TMDB's API supports.
 - Add cache eviction (LRU by `cachedAt`, or a max-row cap) so the SQLDelight cache doesn't grow unbounded on a long-lived install.
 - Add a CI workflow running the Gradle and `xcodebuild` test suites on PRs, plus lint/ktlint and SwiftFormat/SwiftLint checks.
-- Capture `iso_639_1` on `VideoDto` and prefer an English (or device-locale) trailer in `bestTrailerKey()`'s fallback chain, instead of ignoring language entirely.
 - Extract the "cache-first, TTL, emit-stale-on-failure" logic in `MoviesRepositoryImpl` into a small reusable helper — the `getMoviesPage`/`getMovieDetails` bodies are structurally identical and only differ in the read/write/fetch calls, which I've left as accepted duplication rather than a premature abstraction.
 - A real secrets story: move `TMDB_API_KEY` out of a committed file entirely, inject it via CI secrets for release builds and an untracked local override for development.
-- Revisit whether three independent live subscriptions to the same favorites table on iOS (the Popular Movies grid, the Favorites list, and each open detail screen) are worth consolidating if they ever show up as a measurable cost — right now each screen just subscribes on its own via KMP-NativeCoroutines, same as Android's per-screen `observeFavorites()`/`observeIsFavorite()` calls.
