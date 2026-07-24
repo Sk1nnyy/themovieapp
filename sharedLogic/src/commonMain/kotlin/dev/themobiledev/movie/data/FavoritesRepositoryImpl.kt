@@ -6,7 +6,7 @@ import app.cash.sqldelight.coroutines.mapToOneOrDefault
 import dev.themobiledev.movie.db.MovieAppDatabase
 import dev.themobiledev.movie.domain.FavoritesRepository
 import dev.themobiledev.movie.domain.Movie
-import kotlinx.coroutines.Dispatchers
+import dev.themobiledev.movie.ioDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 
@@ -26,13 +26,13 @@ class FavoritesRepositoryImpl(
                 releaseDate = releaseDate,
                 voteAverage = voteAverage,
             )
-        }.asFlow().mapToList(Dispatchers.Default)
+        }.asFlow().mapToList(ioDispatcher)
 
     override fun observeIsFavorite(movieId: Long): Flow<Boolean> =
-        queries.isFavorite(movieId).asFlow().mapToOneOrDefault(false, Dispatchers.Default)
+        queries.isFavorite(movieId).asFlow().mapToOneOrDefault(false, ioDispatcher)
 
     override suspend fun addFavorite(movie: Movie) {
-        withContext(Dispatchers.Default) {
+        withContext(ioDispatcher) {
             queries.insertFavorite(
                 id = movie.id,
                 title = movie.title,
@@ -45,7 +45,7 @@ class FavoritesRepositoryImpl(
     }
 
     override suspend fun removeFavorite(movieId: Long) {
-        withContext(Dispatchers.Default) {
+        withContext(ioDispatcher) {
             queries.removeFavorite(movieId)
         }
     }

@@ -56,9 +56,7 @@ final class MovieDetailFeatureTests: XCTestCase {
     }
 
     func testTask_failureSetsError() async {
-        struct TestError: LocalizedError {
-            var errorDescription: String? { "boom" }
-        }
+        struct TestError: Error {}
         let movie = Movie.mock(id: 1)
         let isFavoriteGate = Gate()
         let store = TestStore(initialState: MovieDetailFeature.State(movie: movie)) {
@@ -81,7 +79,7 @@ final class MovieDetailFeatureTests: XCTestCase {
         }
         await store.receive(.detailsResponse(.failure(TestError().equatable))) {
             $0.isLoading = false
-            $0.errorMessage = "boom"
+            $0.errorMessage = TestError().equatable.userFacingMessage
         }
 
         await isFavoriteGate.open()

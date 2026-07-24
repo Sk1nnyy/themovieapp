@@ -186,7 +186,7 @@ private fun MovieDetailsContent(
                     }
                 }
 
-                state.error != null && state.movieDetails == null -> {
+                state.errorRes != null && state.movieDetails == null -> {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -205,7 +205,7 @@ private fun MovieDetailsContent(
                             style = MaterialTheme.typography.titleMedium,
                         )
                         Text(
-                            text = state.error,
+                            text = stringResource(state.errorRes),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )

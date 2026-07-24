@@ -1,4 +1,5 @@
 import ComposableArchitecture
+import Foundation
 
 @Reducer
 struct MovieDetailFeature {
@@ -8,7 +9,7 @@ struct MovieDetailFeature {
         var isLoading = false
         var movieDetails: MovieDetails?
         var isFavorite = false
-        var errorMessage: String?
+        var errorMessage: LocalizedStringResource?
         var isOffline = false
     }
 
@@ -22,7 +23,7 @@ struct MovieDetailFeature {
         case toggleFavoriteResponse(Result<EquatableVoid, EquatableError>)
     }
 
-    private enum CancelID { case load, observeIsFavorite }
+    private enum CancelID { case load, observeIsFavorite, toggleFavorite }
 
     @Dependency(\.moviesClient) var moviesClient
     @Dependency(\.favoritesClient) var favoritesClient
@@ -46,10 +47,12 @@ struct MovieDetailFeature {
                     do {
                         try await favoritesClient.toggleFavorite(details.asMovie, wasFavorite)
                         await send(.toggleFavoriteResponse(.success(EquatableVoid())))
+                    } catch is CancellationError {
                     } catch {
                         await send(.toggleFavoriteResponse(.failure(error.equatable)))
                     }
                 }
+                .cancellable(id: CancelID.toggleFavorite, cancelInFlight: true)
 
             case let .detailsResponse(.success(details)):
                 state.isLoading = false
@@ -60,7 +63,7 @@ struct MovieDetailFeature {
 
             case let .detailsResponse(.failure(error)):
                 state.isLoading = false
-                state.errorMessage = error.underlying.localizedDescription
+                state.errorMessage = error.userFacingMessage
                 return .none
 
             case let .isFavoriteResponse(.success(isFavorite)):

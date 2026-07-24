@@ -1,5 +1,6 @@
 package dev.themobiledev.movie.popularmovies
 
+import androidx.annotation.StringRes
 import dev.themobiledev.movie.R
 import dev.themobiledev.movie.domain.Movie
 
@@ -16,7 +17,7 @@ data class PopularMoviesState(
     val movies: List<Movie> = emptyList(),
     val currentPage: Int = 0,
     val totalPages: Int = 1,
-    val error: String? = null,
+    @StringRes val errorRes: Int? = null,
     val selectedFilter: MovieFilter = MovieFilter.Popular,
     val isFilterSheetVisible: Boolean = false,
     val favoriteIds: Set<Long> = emptySet(),
@@ -37,6 +38,6 @@ sealed interface PopularMoviesIntent {
 }
 
 sealed interface PopularMoviesEffect {
-    data class ShowError(val message: String) : PopularMoviesEffect
+    data class ShowError(@StringRes val messageRes: Int) : PopularMoviesEffect
     data class NavigateToDetail(val movie: Movie) : PopularMoviesEffect
 }

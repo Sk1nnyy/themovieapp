@@ -5,10 +5,10 @@ import dev.themobiledev.movie.domain.Movie
 import dev.themobiledev.movie.domain.MovieDetails
 import dev.themobiledev.movie.domain.MoviesPage
 import dev.themobiledev.movie.domain.MoviesRepository
+import dev.themobiledev.movie.ioDispatcher
 import dev.themobiledev.movie.network.dto.GenreDto
 import dev.themobiledev.movie.network.dto.MoviesResponseDto
 import dev.themobiledev.movie.network.service.MoviesApi
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -66,7 +66,7 @@ class MoviesRepositoryImpl(
                 if (cached == null) emit(Result.failure(error))
             },
         )
-    }.flowOn(Dispatchers.Default)
+    }.flowOn(ioDispatcher)
 
     private fun getMoviesPage(
         category: String,
@@ -92,7 +92,7 @@ class MoviesRepositoryImpl(
                 if (cached == null) emit(Result.failure(error))
             },
         )
-    }.flowOn(Dispatchers.Default)
+    }.flowOn(ioDispatcher)
 
     private fun readCachedPage(category: String, page: Int): CachedPage? {
         val meta = queries.selectPageMeta(category, page.toLong()) { totalPages, totalResults, cachedAt ->

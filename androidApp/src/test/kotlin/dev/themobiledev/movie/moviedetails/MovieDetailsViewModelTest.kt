@@ -1,6 +1,7 @@
 package dev.themobiledev.movie.moviedetails
 
 import app.cash.turbine.test
+import dev.themobiledev.movie.R
 import dev.themobiledev.movie.data.toMovie
 import dev.themobiledev.movie.domain.FavoritesRepository
 import dev.themobiledev.movie.domain.MovieDetails
@@ -94,7 +95,7 @@ class MovieDetailsViewModelTest {
             val loaded = awaitItem()
             assertTrue(!loaded.isLoading)
             assertEquals(details(1), loaded.movieDetails)
-            assertNull(loaded.error)
+            assertNull(loaded.errorRes)
         }
     }
 
@@ -115,7 +116,7 @@ class MovieDetailsViewModelTest {
 
             val failed = awaitItem()
             assertTrue(!failed.isLoading)
-            assertEquals("boom", failed.error)
+            assertEquals(R.string.error_generic, failed.errorRes)
             assertNull(failed.movieDetails)
         }
     }
@@ -126,7 +127,7 @@ class MovieDetailsViewModelTest {
             flowOf(Result.failure(IllegalStateException("boom")))
 
         val viewModel = MovieDetailsViewModel(movieId = 1, moviesRepository = repository, favoritesRepository = favoritesRepository)
-        assertEquals("boom", viewModel.state.value.error)
+        assertEquals(R.string.error_generic, viewModel.state.value.errorRes)
 
         val gate = CompletableDeferred<Unit>()
         every { repository.getMovieDetails(movieId = any(), forceRefresh = any()) } returns flow {
@@ -135,7 +136,7 @@ class MovieDetailsViewModelTest {
         }
 
         viewModel.state.test {
-            assertEquals("boom", awaitItem().error)
+            assertEquals(R.string.error_generic, awaitItem().errorRes)
 
             viewModel.handleIntent(MovieDetailsIntent.Retry)
 
@@ -146,7 +147,7 @@ class MovieDetailsViewModelTest {
             val loaded = awaitItem()
             assertTrue(!loaded.isLoading)
             assertEquals(details(1), loaded.movieDetails)
-            assertNull(loaded.error)
+            assertNull(loaded.errorRes)
         }
     }
 

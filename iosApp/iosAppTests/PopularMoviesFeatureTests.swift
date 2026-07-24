@@ -299,16 +299,14 @@ final class PopularMoviesFeatureTests: XCTestCase {
     }
 
     func testMoviesResponse_failureSetsErrorMessage() async {
-        struct TestError: LocalizedError {
-            var errorDescription: String? { "Network unreachable" }
-        }
+        struct TestError: Error {}
         let store = TestStore(initialState: PopularMoviesFeature.State(isLoading: true)) {
             PopularMoviesFeature()
         }
 
         await store.send(.moviesResponse(.failure(TestError().equatable))) {
             $0.isLoading = false
-            $0.errorMessage = "Network unreachable"
+            $0.errorMessage = TestError().equatable.userFacingMessage
         }
     }
 

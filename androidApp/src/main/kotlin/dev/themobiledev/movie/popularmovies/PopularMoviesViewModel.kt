@@ -6,6 +6,7 @@ import dev.themobiledev.movie.domain.FavoritesRepository
 import dev.themobiledev.movie.domain.Movie
 import dev.themobiledev.movie.domain.MoviesPage
 import dev.themobiledev.movie.domain.MoviesRepository
+import dev.themobiledev.movie.userFacingMessageRes
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -92,7 +93,7 @@ class PopularMoviesViewModel(
             val filter = state.value.selectedFilter
 
             state.update {
-                if (page == 1) it.copy(isLoading = true, error = null) else it.copy(isLoadingMore = true, error = null)
+                if (page == 1) it.copy(isLoading = true, errorRes = null) else it.copy(isLoadingMore = true, errorRes = null)
             }
 
             val flow = when (filter) {
@@ -106,9 +107,9 @@ class PopularMoviesViewModel(
                 result
                     .onSuccess { moviesPage -> applyMoviesPage(moviesPage, page) }
                     .onFailure { throwable ->
-                        val message = throwable.message ?: "Unable to load movies"
-                        state.update { it.copy(isLoading = false, isLoadingMore = false, error = message) }
-                        effect.emit(PopularMoviesEffect.ShowError(message))
+                        val messageRes = throwable.userFacingMessageRes()
+                        state.update { it.copy(isLoading = false, isLoadingMore = false, errorRes = messageRes) }
+                        effect.emit(PopularMoviesEffect.ShowError(messageRes))
                     }
             }
         }
@@ -125,7 +126,7 @@ class PopularMoviesViewModel(
                 movies = pagesByNumber.values.flatten().distinctBy { movie -> movie.id },
                 currentPage = moviesPage.page,
                 totalPages = moviesPage.totalPages,
-                error = null,
+                errorRes = null,
                 isOffline = moviesPage.isStale,
             )
         }

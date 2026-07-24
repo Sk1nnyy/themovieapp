@@ -18,7 +18,7 @@ struct MovieDetailView: View {
                     .font(.title2.bold())
 
                 HStack(spacing: 12) {
-                    Label(String(format: "%.1f", store.movie.voteAverage), systemImage: "star.fill")
+                    Label(store.movie.voteAverage.formatted(.number.precision(.fractionLength(1))), systemImage: "star.fill")
                         .foregroundStyle(.yellow)
                         .fontWeight(.medium)
 
@@ -28,7 +28,7 @@ struct MovieDetailView: View {
                     }
 
                     if let runtime = store.movieDetails?.runtime {
-                        Text("\(runtime) min")
+                        Text(LocalizedStringResource("movie_detail_runtime_minutes", defaultValue: "\(runtime) min"))
                             .foregroundStyle(.secondary)
                     }
                 }
@@ -95,7 +95,7 @@ struct MovieDetailView: View {
                     Image(systemName: store.isFavorite ? "heart.fill" : "heart")
                         .foregroundStyle(store.isFavorite ? Color.red : Color.primary)
                 }
-                .accessibilityLabel(store.isFavorite ? "Remove from favorites" : "Add to favorites")
+                .accessibilityLabel(store.isFavorite ? "Remove from Favorites" : "Add to Favorites")
             }
         }
         .task { await store.send(.task).finish() }

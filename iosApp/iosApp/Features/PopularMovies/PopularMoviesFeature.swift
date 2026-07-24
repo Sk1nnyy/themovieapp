@@ -11,7 +11,7 @@ struct PopularMoviesFeature {
         var pagesByNumber: [Int: [Movie]] = [:]
         var currentPage = 0
         var totalPages = 1
-        var errorMessage: String?
+        var errorMessage: LocalizedStringResource?
         var selectedFilter: MovieFilter = .popular
         var isFilterSheetPresented = false
         var favoriteIds: Set<Int64> = []
@@ -121,7 +121,7 @@ struct PopularMoviesFeature {
             case let .moviesResponse(.failure(error)):
                 state.isLoading = false
                 state.isLoadingMore = false
-                state.errorMessage = error.underlying.localizedDescription
+                state.errorMessage = error.userFacingMessage
                 return .none
 
             case let .favoriteIdsResponse(.success(ids)):

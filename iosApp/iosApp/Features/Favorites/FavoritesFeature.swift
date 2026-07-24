@@ -19,7 +19,10 @@ struct FavoritesFeature {
         case removeFavoriteResponse(Result<EquatableVoid, EquatableError>)
     }
 
-    private enum CancelID { case observeFavorites }
+    private enum CancelID: Hashable {
+        case observeFavorites
+        case removeFavorite(Int64)
+    }
 
     @Dependency(\.favoritesClient) var favoritesClient
 
@@ -35,10 +38,12 @@ struct FavoritesFeature {
                     do {
                         try await favoritesClient.toggleFavorite(movie, true)
                         await send(.removeFavoriteResponse(.success(EquatableVoid())))
+                    } catch is CancellationError {
                     } catch {
                         await send(.removeFavoriteResponse(.failure(error.equatable)))
                     }
                 }
+                .cancellable(id: CancelID.removeFavorite(movie.id), cancelInFlight: true)
 
             case let .favoritesResponse(.success(favorites)):
                 state.isLoading = false

@@ -1,12 +1,13 @@
 package dev.themobiledev.movie.moviedetails
 
+import androidx.annotation.StringRes
 import dev.themobiledev.movie.domain.MovieDetails
 
 data class MovieDetailsState(
     val isLoading: Boolean = false,
     val movieDetails: MovieDetails? = null,
     val isFavorite: Boolean = false,
-    val error: String? = null,
+    @StringRes val errorRes: Int? = null,
     val isOffline: Boolean = false,
 )
 

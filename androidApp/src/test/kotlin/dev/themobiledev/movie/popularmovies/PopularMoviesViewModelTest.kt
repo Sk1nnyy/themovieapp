@@ -1,6 +1,7 @@
 package dev.themobiledev.movie.popularmovies
 
 import app.cash.turbine.test
+import dev.themobiledev.movie.R
 import dev.themobiledev.movie.domain.FavoritesRepository
 import dev.themobiledev.movie.domain.Movie
 import dev.themobiledev.movie.domain.MoviesPage
@@ -154,10 +155,10 @@ class PopularMoviesViewModelTest {
         viewModel.effect.test {
             gate.complete(Unit)
 
-            assertEquals(PopularMoviesEffect.ShowError("boom"), awaitItem())
+            assertEquals(PopularMoviesEffect.ShowError(R.string.error_generic), awaitItem())
         }
 
-        assertEquals("boom", viewModel.state.value.error)
+        assertEquals(R.string.error_generic, viewModel.state.value.errorRes)
         assertTrue(viewModel.state.value.movies.isEmpty())
     }
 

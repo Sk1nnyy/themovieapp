@@ -24,4 +24,8 @@
     <string name="offline_banner_message">You\'re offline - showing saved data</string>
     <string name="content_description_trailer_player">Movie trailer player</string>
     <string name="movie_details_watch_on_youtube">Watch on YouTube</string>
+    <string name="error_network">You\'re offline and nothing is cached yet. Check your connection and try again.</string>
+    <string name="error_serialization">Something went wrong reading that response. Please try again.</string>
+    <string name="error_server">The server couldn\'t complete this request. Please try again.</string>
+    <string name="error_generic">Something went wrong. Please try again.</string>
 </resources>
