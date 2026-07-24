@@ -15,5 +15,6 @@ data class MovieDetails(
     val releaseDate: String?,
     val voteAverage: Double,
     val voteCount: Int,
+    val trailerKey: String? = null,
     val isStale: Boolean = false,
 )

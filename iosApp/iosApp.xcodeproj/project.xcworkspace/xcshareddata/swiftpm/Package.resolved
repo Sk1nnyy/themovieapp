@@ -1,5 +1,5 @@
 {
-  "originHash" : "61117a48877edd1ea1cb9439987bfbf95b05f2ec6333820e8b83b506ef3ae1da",
+  "originHash" : "322dd656cb68dcb3066314793b6a9fb04cc496db4c94e9441e191126495d279e",
   "pins" : [
     {
       "identity" : "combine-schedulers",
@@ -143,6 +143,15 @@
       "state" : {
         "revision" : "8f6abcf4c8950e2679d5b2fee4ca284fd7c34886",
         "version" : "1.11.0"
+      }
+    },
+    {
+      "identity" : "youtube-ios-player-helper",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/youtube/youtube-ios-player-helper",
+      "state" : {
+        "revision" : "f57129cd4380ec0a74dd3a59da3270a1d653d59b",
+        "version" : "1.0.4"
       }
     }
   ],

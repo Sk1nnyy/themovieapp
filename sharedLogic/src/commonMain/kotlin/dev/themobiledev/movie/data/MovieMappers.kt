@@ -8,6 +8,7 @@ import dev.themobiledev.movie.network.dto.GenreDto
 import dev.themobiledev.movie.network.dto.MovieDetailsDto
 import dev.themobiledev.movie.network.dto.MovieDto
 import dev.themobiledev.movie.network.dto.MoviesResponseDto
+import dev.themobiledev.movie.network.dto.VideoDto
 
 fun MovieDto.toDomain(): Movie =
     Movie(
@@ -55,4 +56,12 @@ fun MovieDetailsDto.toDomain(): MovieDetails =
         releaseDate = releaseDate,
         voteAverage = voteAverage,
         voteCount = voteCount,
+        trailerKey = videos?.results.orEmpty().bestTrailerKey(),
     )
+
+private fun List<VideoDto>.bestTrailerKey(): String? {
+    val youTube = filter { it.site == "YouTube" }
+    return youTube.firstOrNull { it.type == "Trailer" && it.official }?.key
+        ?: youTube.firstOrNull { it.type == "Trailer" }?.key
+        ?: youTube.firstOrNull { it.type == "Teaser" }?.key
+}

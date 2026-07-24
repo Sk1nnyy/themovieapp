@@ -150,7 +150,7 @@ class MoviesRepositoryImpl(
     private fun readCachedDetails(movieId: Long): CachedDetails? =
         queries.selectMovieDetails(movieId) {
                 title, overview, tagline, runtime, budget, revenue, homepage, genresJson,
-                posterPath, backdropPath, releaseDate, voteAverage, voteCount, cachedAt ->
+                posterPath, backdropPath, releaseDate, voteAverage, voteCount, trailerKey, cachedAt ->
             val details = MovieDetails(
                 id = movieId,
                 title = title,
@@ -166,6 +166,7 @@ class MoviesRepositoryImpl(
                 releaseDate = releaseDate,
                 voteAverage = voteAverage,
                 voteCount = voteCount.toInt(),
+                trailerKey = trailerKey,
             )
             CachedDetails(details, cachedAt)
         }.executeAsOneOrNull()
@@ -189,6 +190,7 @@ class MoviesRepositoryImpl(
             releaseDate = details.releaseDate,
             voteAverage = details.voteAverage,
             voteCount = details.voteCount.toLong(),
+            trailerKey = details.trailerKey,
             cachedAt = clock.now().toEpochMilliseconds(),
         )
     }

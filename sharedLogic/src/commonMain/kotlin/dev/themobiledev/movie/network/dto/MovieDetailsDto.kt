@@ -19,4 +19,18 @@ data class MovieDetailsDto(
     @SerialName("release_date") val releaseDate: String? = null,
     @SerialName("vote_average") val voteAverage: Double = 0.0,
     @SerialName("vote_count") val voteCount: Int = 0,
+    val videos: VideosDto? = null,
+)
+
+@Serializable
+data class VideosDto(
+    val results: List<VideoDto> = emptyList(),
+)
+
+@Serializable
+data class VideoDto(
+    val key: String,
+    val site: String,
+    val type: String,
+    val official: Boolean = false,
 )

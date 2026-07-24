@@ -40,6 +40,18 @@ struct MovieDetailView: View {
                         .foregroundStyle(.secondary)
                 }
 
+                if let trailerKey = store.movieDetails?.trailerKey {
+                    TrailerPlayer(videoKey: trailerKey)
+                        .aspectRatio(16.0 / 9.0, contentMode: .fit)
+                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                        .accessibilityLabel("Movie trailer player")
+
+                    if let watchURL = URL(string: "https://www.youtube.com/watch?v=\(trailerKey)") {
+                        Link("Watch on YouTube", destination: watchURL)
+                            .font(.subheadline)
+                    }
+                }
+
                 if let genres = store.movieDetails?.genres, !genres.isEmpty {
                     genresRow(genres)
                 }

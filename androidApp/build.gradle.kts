@@ -37,6 +37,8 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
 
+    implementation(libs.youtubePlayer.core)
+
     testImplementation(libs.junit)
     testImplementation(libs.kotlin.testJunit)
     testImplementation(libs.kotlinx.coroutines.test)

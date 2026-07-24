@@ -4,8 +4,11 @@ import dev.themobiledev.movie.network.dto.GenreDto
 import dev.themobiledev.movie.network.dto.MovieDetailsDto
 import dev.themobiledev.movie.network.dto.MovieDto
 import dev.themobiledev.movie.network.dto.MoviesResponseDto
+import dev.themobiledev.movie.network.dto.VideoDto
+import dev.themobiledev.movie.network.dto.VideosDto
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 
 class MovieMappersTest {
 
@@ -106,5 +109,61 @@ class MovieMappersTest {
         assertEquals(null, details.tagline)
         assertEquals(null, details.runtime)
         assertEquals(emptyList(), details.genres)
+        assertNull(details.trailerKey)
     }
+
+    @Test
+    fun movieDetailsDto_toDomain_prefersOfficialYouTubeTrailerOverEverythingElse() {
+        val dto = baseDetailsDto(
+            videos = VideosDto(
+                results = listOf(
+                    VideoDto(key = "teaser", site = "YouTube", type = "Teaser", official = true),
+                    VideoDto(key = "vimeoTrailer", site = "Vimeo", type = "Trailer", official = true),
+                    VideoDto(key = "unofficialTrailer", site = "YouTube", type = "Trailer", official = false),
+                    VideoDto(key = "officialTrailer", site = "YouTube", type = "Trailer", official = true),
+                ),
+            ),
+        )
+
+        assertEquals("officialTrailer", dto.toDomain().trailerKey)
+    }
+
+    @Test
+    fun movieDetailsDto_toDomain_fallsBackToUnofficialYouTubeTrailerWhenNoOfficialOneExists() {
+        val dto = baseDetailsDto(
+            videos = VideosDto(
+                results = listOf(
+                    VideoDto(key = "vimeoTrailer", site = "Vimeo", type = "Trailer", official = true),
+                    VideoDto(key = "unofficialTrailer", site = "YouTube", type = "Trailer", official = false),
+                ),
+            ),
+        )
+
+        assertEquals("unofficialTrailer", dto.toDomain().trailerKey)
+    }
+
+    @Test
+    fun movieDetailsDto_toDomain_fallsBackToYouTubeTeaserWhenNoTrailerExists() {
+        val dto = baseDetailsDto(
+            videos = VideosDto(results = listOf(VideoDto(key = "teaser", site = "YouTube", type = "Teaser", official = true))),
+        )
+
+        assertEquals("teaser", dto.toDomain().trailerKey)
+    }
+
+    @Test
+    fun movieDetailsDto_toDomain_noYouTubeVideos_trailerKeyIsNull() {
+        val dto = baseDetailsDto(
+            videos = VideosDto(results = listOf(VideoDto(key = "vimeoTrailer", site = "Vimeo", type = "Trailer", official = true))),
+        )
+
+        assertNull(dto.toDomain().trailerKey)
+    }
+
+    private fun baseDetailsDto(videos: VideosDto?) = MovieDetailsDto(
+        id = 1,
+        title = "Title",
+        overview = "Overview",
+        videos = videos,
+    )
 }

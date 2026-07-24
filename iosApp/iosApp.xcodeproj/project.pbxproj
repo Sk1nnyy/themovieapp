@@ -20,6 +20,7 @@
 		A7B6D0028BDD92FB0679B300 /* PerceptionCore in Frameworks */ = {isa = PBXBuildFile; productRef = E13EDDEFE6F5D6EB2BF4F8BD /* PerceptionCore */; };
 		A892D73E9E1A6B3D33F2AF9F /* AppFeatureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B877F74DE5DE42FC876FCF36 /* AppFeatureTests.swift */; };
 		B0C54DB8EA858B29A47DFFF7 /* Dependencies in Frameworks */ = {isa = PBXBuildFile; productRef = B1620B9A446F51AD35C902A2 /* Dependencies */; };
+		D655675FD6CFD2F0D8C53C8C /* YouTubeiOSPlayerHelper in Frameworks */ = {isa = PBXBuildFile; productRef = 2C42AA67FF9F10E1764E78B4 /* YouTubeiOSPlayerHelper */; };
 		DD1BBDDCF418B8EC2004B26F /* DependenciesMacros in Frameworks */ = {isa = PBXBuildFile; productRef = BC1F893FAAD5B43AA7980E80 /* DependenciesMacros */; };
 		E15B478C6EA45489DE709896 /* KMPNativeCoroutinesAsync in Frameworks */ = {isa = PBXBuildFile; productRef = 8A999D4114431F945FBCCA3A /* KMPNativeCoroutinesAsync */; };
 		E600A38D39907637FF01F466 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 43F63D0EF4A692F1559D9319 /* Foundation.framework */; };
@@ -51,7 +52,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		940CA25976DDFD567AA4E602 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+		940CA25976DDFD567AA4E602 /* Exceptions for "iosApp" folder in "iosApp" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -64,7 +65,7 @@
 		527FC616FFD6DDF7E716AA5E /* iosApp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				940CA25976DDFD567AA4E602 /* PBXFileSystemSynchronizedBuildFileExceptionSet */,
+				940CA25976DDFD567AA4E602 /* Exceptions for "iosApp" folder in "iosApp" target */,
 			);
 			explicitFileTypes = {
 			};
@@ -99,6 +100,7 @@
 				66A54F5D79482792C18B95E0 /* IssueReporting in Frameworks */,
 				A7B6D0028BDD92FB0679B300 /* PerceptionCore in Frameworks */,
 				E15B478C6EA45489DE709896 /* KMPNativeCoroutinesAsync in Frameworks */,
+				D655675FD6CFD2F0D8C53C8C /* YouTubeiOSPlayerHelper in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -224,6 +226,7 @@
 				57AB73B35809841BC8D4C8CB /* IssueReporting */,
 				E13EDDEFE6F5D6EB2BF4F8BD /* PerceptionCore */,
 				8A999D4114431F945FBCCA3A /* KMPNativeCoroutinesAsync */,
+				2C42AA67FF9F10E1764E78B4 /* YouTubeiOSPlayerHelper */,
 			);
 			productName = iosApp;
 			productReference = 46B25EB09933A207F4BC4024 /* MovieApp.app */;
@@ -264,6 +267,7 @@
 				320EAA9BC8322D119FBF785E /* XCRemoteSwiftPackageReference "xctest-dynamic-overlay" */,
 				8304ECA115CD68B53F832417 /* XCRemoteSwiftPackageReference "swift-perception" */,
 				C729728F0391EA011E568835 /* XCRemoteSwiftPackageReference "KMP-NativeCoroutines" */,
+				7D6082FF0EE8F06873D8270B /* XCRemoteSwiftPackageReference "youtube-ios-player-helper" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 426160E409EF8FC5D54AA11A /* Products */;
@@ -614,6 +618,14 @@
 				minimumVersion = 1.14.1;
 			};
 		};
+		7D6082FF0EE8F06873D8270B /* XCRemoteSwiftPackageReference "youtube-ios-player-helper" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/youtube/youtube-ios-player-helper";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.4;
+			};
+		};
 		8304ECA115CD68B53F832417 /* XCRemoteSwiftPackageReference "swift-perception" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/pointfreeco/swift-perception";
@@ -653,6 +665,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = AD7FB38BCE4F4F3993440EE0 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
 			productName = ComposableArchitecture;
+		};
+		2C42AA67FF9F10E1764E78B4 /* YouTubeiOSPlayerHelper */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7D6082FF0EE8F06873D8270B /* XCRemoteSwiftPackageReference "youtube-ios-player-helper" */;
+			productName = YouTubeiOSPlayerHelper;
 		};
 		57AB73B35809841BC8D4C8CB /* IssueReporting */ = {
 			isa = XCSwiftPackageProductDependency;

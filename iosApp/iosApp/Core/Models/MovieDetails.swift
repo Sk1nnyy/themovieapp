@@ -27,6 +27,7 @@ struct MovieDetails: Equatable, Sendable {
     let releaseDate: String?
     let voteAverage: Double
     let voteCount: Int
+    let trailerKey: String?
     let isStale: Bool
 
     init(
@@ -44,6 +45,7 @@ struct MovieDetails: Equatable, Sendable {
         releaseDate: String?,
         voteAverage: Double,
         voteCount: Int,
+        trailerKey: String? = nil,
         isStale: Bool = false
     ) {
         self.id = id
@@ -60,6 +62,7 @@ struct MovieDetails: Equatable, Sendable {
         self.releaseDate = releaseDate
         self.voteAverage = voteAverage
         self.voteCount = voteCount
+        self.trailerKey = trailerKey
         self.isStale = isStale
     }
 
@@ -86,6 +89,7 @@ extension MovieDetails {
             releaseDate: kotlin.releaseDate,
             voteAverage: kotlin.voteAverage,
             voteCount: Int(kotlin.voteCount),
+            trailerKey: kotlin.trailerKey,
             isStale: kotlin.isStale
         )
     }

@@ -20,5 +20,5 @@ class MoviesApi(httpClient: HttpClient) : ApiClient(httpClient) {
         get("movie/now_playing", parameters = mapOf("page" to page))
 
     suspend fun getMovieDetails(movieId: Long): Result<MovieDetailsDto> =
-        get("movie/$movieId")
+        get("movie/$movieId", parameters = mapOf("append_to_response" to "videos"))
 }

@@ -65,6 +65,7 @@ import dev.themobiledev.movie.R
 import dev.themobiledev.movie.components.OfflineBanner
 import dev.themobiledev.movie.domain.Genre
 import dev.themobiledev.movie.domain.MovieDetails
+import dev.themobiledev.movie.moviedetails.components.TrailerPlayer
 import dev.themobiledev.movie.navigation.moviePosterSharedElementKey
 import dev.themobiledev.movie.navigation.movieTitleSharedElementKey
 import dev.themobiledev.movie.theme.FavoriteRed
@@ -304,6 +305,22 @@ private fun ColumnScope.MovieDetailsMetadata(details: MovieDetails) {
             Text(
                 text = stringResource(R.string.movie_details_runtime_minutes, it),
                 style = MaterialTheme.typography.bodyMedium,
+            )
+        }
+    }
+
+    details.trailerKey?.let { trailerKey ->
+        val uriHandler = LocalUriHandler.current
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            TrailerPlayer(videoKey = trailerKey, modifier = Modifier.fillMaxWidth())
+            Text(
+                text = stringResource(R.string.movie_details_watch_on_youtube),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.primary,
+                textDecoration = TextDecoration.Underline,
+                modifier = Modifier.clickable {
+                    uriHandler.openUri("https://www.youtube.com/watch?v=$trailerKey")
+                },
             )
         }
     }

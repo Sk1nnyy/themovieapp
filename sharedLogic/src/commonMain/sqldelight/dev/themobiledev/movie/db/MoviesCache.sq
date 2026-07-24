@@ -35,6 +35,7 @@ CREATE TABLE cachedMovieDetails (
     releaseDate TEXT,
     voteAverage REAL NOT NULL,
     voteCount INTEGER NOT NULL,
+    trailerKey TEXT,
     cachedAt INTEGER NOT NULL
 );
 
@@ -60,10 +61,10 @@ WHERE category = :category AND page = :page
 ORDER BY position ASC;
 
 upsertMovieDetails:
-INSERT OR REPLACE INTO cachedMovieDetails(movieId, title, overview, tagline, runtime, budget, revenue, homepage, genresJson, posterPath, backdropPath, releaseDate, voteAverage, voteCount, cachedAt)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+INSERT OR REPLACE INTO cachedMovieDetails(movieId, title, overview, tagline, runtime, budget, revenue, homepage, genresJson, posterPath, backdropPath, releaseDate, voteAverage, voteCount, trailerKey, cachedAt)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 selectMovieDetails:
-SELECT title, overview, tagline, runtime, budget, revenue, homepage, genresJson, posterPath, backdropPath, releaseDate, voteAverage, voteCount, cachedAt
+SELECT title, overview, tagline, runtime, budget, revenue, homepage, genresJson, posterPath, backdropPath, releaseDate, voteAverage, voteCount, trailerKey, cachedAt
 FROM cachedMovieDetails
 WHERE movieId = :movieId;

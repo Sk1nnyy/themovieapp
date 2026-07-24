@@ -20,9 +20,6 @@ sqldelight {
     }
 }
 
-// No .sqm migration files exist yet, so this task has nothing to verify; it only runs because
-// the test-only JDBC sqlite driver below makes SQLDelight think verification is possible, and
-// its bundled sqlite-jdbc clashes natively with that driver's, breaking the whole build.
 tasks.matching { it.name == "verifyCommonMainMovieAppDatabaseMigration" }.configureEach { enabled = false }
 
 val localProperties = Properties().apply {

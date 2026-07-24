@@ -21,7 +21,6 @@ class MovieImageLoaderFactory : SingletonImageLoader.Factory {
             .build()
     }
 
-    private val imageOkHttpClient by lazy {
     private fun imageOkHttpClient(context: PlatformContext): OkHttpClient =
         OkHttpClient.Builder()
             .cache(Cache(File(context.cacheDir, IMAGE_DISK_CACHE_DIR_NAME), IMAGE_DISK_CACHE_MAX_BYTES))

@@ -22,4 +22,6 @@
     <string name="movie_details_revenue">Revenue</string>
     <string name="movie_details_homepage">Homepage</string>
     <string name="offline_banner_message">You\'re offline - showing saved data</string>
+    <string name="content_description_trailer_player">Movie trailer player</string>
+    <string name="movie_details_watch_on_youtube">Watch on YouTube</string>
 </resources>
