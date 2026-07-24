@@ -1,4 +1,4 @@
-package dev.themobiledev.movie.favorites
+package dev.themobiledev.movie.ui.presentation.favorites
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedVisibilityScope
@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.themobiledev.movie.R
 import dev.themobiledev.movie.domain.Movie
-import dev.themobiledev.movie.favorites.components.FavoriteMovieItem
+import dev.themobiledev.movie.presentation.favorites.components.FavoriteMovieItem
 import dev.themobiledev.movie.theme.MovieTheme
 import org.koin.compose.viewmodel.koinViewModel
 

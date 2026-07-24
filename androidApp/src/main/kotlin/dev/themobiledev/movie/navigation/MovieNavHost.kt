@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
@@ -24,9 +23,9 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import androidx.navigation3.scene.Scene
 import androidx.navigation3.ui.NavDisplay
-import dev.themobiledev.movie.favorites.FavoritesScreen
-import dev.themobiledev.movie.moviedetails.MovieDetailsScreen
-import dev.themobiledev.movie.popularmovies.PopularMoviesListScreen
+import dev.themobiledev.movie.ui.presentation.favorites.FavoritesScreen
+import dev.themobiledev.movie.ui.presentation.moviedetails.MovieDetailsScreen
+import dev.themobiledev.movie.ui.presentation.popularmovies.PopularMoviesListScreen
 
 private val movieDetailEnterTransition: AnimatedContentTransitionScope<Scene<*>>.() -> ContentTransform = {
     slideInHorizontally(animationSpec = tween(300)) { fullWidth -> fullWidth } togetherWith

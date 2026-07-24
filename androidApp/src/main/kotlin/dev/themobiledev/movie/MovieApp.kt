@@ -6,7 +6,7 @@ import coil3.PlatformContext
 import coil3.SingletonImageLoader
 import dev.themobiledev.movie.di.initKoin
 import dev.themobiledev.movie.di.viewModelModule
-import dev.themobiledev.movie.image.MovieImageLoaderFactory
+import dev.themobiledev.movie.utils.MovieImageLoaderFactory
 import org.koin.android.ext.koin.androidContext
 
 class MovieApp : Application(), SingletonImageLoader.Factory {

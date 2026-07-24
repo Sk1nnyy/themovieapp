@@ -1,4 +1,4 @@
-package dev.themobiledev.movie.components
+package dev.themobiledev.movie.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row

@@ -1,4 +1,4 @@
-package dev.themobiledev.movie.popularmovies
+package dev.themobiledev.movie.ui.presentation.popularmovies
 
 import androidx.annotation.StringRes
 import dev.themobiledev.movie.R

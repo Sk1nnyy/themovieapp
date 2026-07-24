@@ -1,4 +1,4 @@
-package dev.themobiledev.movie.favorites.components
+package dev.themobiledev.movie.ui.presentation.favorites.components
 
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi

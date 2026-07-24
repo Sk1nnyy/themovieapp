@@ -1,11 +1,11 @@
-package dev.themobiledev.movie.moviedetails
+package dev.themobiledev.movie.ui.presentation.moviedetails
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.themobiledev.movie.data.toMovie
 import dev.themobiledev.movie.domain.FavoritesRepository
 import dev.themobiledev.movie.domain.MoviesRepository
-import dev.themobiledev.movie.userFacingMessageRes
+import dev.themobiledev.movie.utils.userFacingMessageRes
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow

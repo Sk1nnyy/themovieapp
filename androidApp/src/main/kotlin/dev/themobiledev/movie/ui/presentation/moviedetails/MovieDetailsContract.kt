@@ -1,4 +1,4 @@
-package dev.themobiledev.movie.moviedetails
+package dev.themobiledev.movie.ui.presentation.moviedetails
 
 import androidx.annotation.StringRes
 import dev.themobiledev.movie.domain.MovieDetails

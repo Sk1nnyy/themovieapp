@@ -6,6 +6,9 @@ import dev.themobiledev.movie.data.toMovie
 import dev.themobiledev.movie.domain.FavoritesRepository
 import dev.themobiledev.movie.domain.MovieDetails
 import dev.themobiledev.movie.domain.MoviesRepository
+import dev.themobiledev.movie.presentation.moviedetails.MovieDetailsEffect
+import dev.themobiledev.movie.presentation.moviedetails.MovieDetailsIntent
+import dev.themobiledev.movie.presentation.moviedetails.MovieDetailsViewModel
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -66,7 +69,8 @@ class MovieDetailsViewModelTest {
         every { repository.getMovieDetails(movieId = any(), forceRefresh = any()) } returns
             flowOf(Result.success(details(1)))
 
-        val viewModel = MovieDetailsViewModel(movieId = 1, moviesRepository = repository, favoritesRepository = favoritesRepository)
+        val viewModel =
+            MovieDetailsViewModel(movieId = 1, moviesRepository = repository, favoritesRepository = favoritesRepository)
 
         viewModel.effect.test {
             viewModel.handleIntent(MovieDetailsIntent.OnBackClicked)
@@ -83,7 +87,8 @@ class MovieDetailsViewModelTest {
             emit(Result.success(details(1)))
         }
 
-        val viewModel = MovieDetailsViewModel(movieId = 1, moviesRepository = repository, favoritesRepository = favoritesRepository)
+        val viewModel =
+            MovieDetailsViewModel(movieId = 1, moviesRepository = repository, favoritesRepository = favoritesRepository)
 
         viewModel.state.test {
             val loading = awaitItem()
@@ -107,7 +112,8 @@ class MovieDetailsViewModelTest {
             emit(Result.failure(IllegalStateException("boom")))
         }
 
-        val viewModel = MovieDetailsViewModel(movieId = 1, moviesRepository = repository, favoritesRepository = favoritesRepository)
+        val viewModel =
+            MovieDetailsViewModel(movieId = 1, moviesRepository = repository, favoritesRepository = favoritesRepository)
 
         viewModel.state.test {
             assertTrue(awaitItem().isLoading)
@@ -126,7 +132,8 @@ class MovieDetailsViewModelTest {
         every { repository.getMovieDetails(movieId = any(), forceRefresh = any()) } returns
             flowOf(Result.failure(IllegalStateException("boom")))
 
-        val viewModel = MovieDetailsViewModel(movieId = 1, moviesRepository = repository, favoritesRepository = favoritesRepository)
+        val viewModel =
+            MovieDetailsViewModel(movieId = 1, moviesRepository = repository, favoritesRepository = favoritesRepository)
         assertEquals(R.string.error_generic, viewModel.state.value.errorRes)
 
         val gate = CompletableDeferred<Unit>()
@@ -159,7 +166,8 @@ class MovieDetailsViewModelTest {
         every { favoritesRepository.observeIsFavorite(any()) } returns flowOf(true)
         coEvery { favoritesRepository.toggleFavorite(any(), any()) } returns Unit
 
-        val viewModel = MovieDetailsViewModel(movieId = 1, moviesRepository = repository, favoritesRepository = favoritesRepository)
+        val viewModel =
+            MovieDetailsViewModel(movieId = 1, moviesRepository = repository, favoritesRepository = favoritesRepository)
 
         viewModel.handleIntent(MovieDetailsIntent.ToggleFavorite)
 
@@ -177,7 +185,8 @@ class MovieDetailsViewModelTest {
             emit(Result.success(freshDetails))
         }
 
-        val viewModel = MovieDetailsViewModel(movieId = 1, moviesRepository = repository, favoritesRepository = favoritesRepository)
+        val viewModel =
+            MovieDetailsViewModel(movieId = 1, moviesRepository = repository, favoritesRepository = favoritesRepository)
 
         viewModel.state.test {
             val cached = awaitItem()
@@ -202,7 +211,8 @@ class MovieDetailsViewModelTest {
             emit(Result.success(freshDetails))
         }
 
-        val viewModel = MovieDetailsViewModel(movieId = 1, moviesRepository = repository, favoritesRepository = favoritesRepository)
+        val viewModel =
+            MovieDetailsViewModel(movieId = 1, moviesRepository = repository, favoritesRepository = favoritesRepository)
 
         viewModel.state.test {
             val stale = awaitItem()

@@ -1,6 +1,7 @@
-package dev.themobiledev.movie
+package dev.themobiledev.movie.utils
 
 import androidx.annotation.StringRes
+import dev.themobiledev.movie.R
 import dev.themobiledev.movie.network.ApiException
 
 /**

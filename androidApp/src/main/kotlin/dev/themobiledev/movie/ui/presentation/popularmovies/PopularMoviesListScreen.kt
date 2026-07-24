@@ -1,4 +1,4 @@
-package dev.themobiledev.movie.popularmovies
+package dev.themobiledev.movie.ui.presentation.popularmovies
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedVisibilityScope
@@ -46,7 +46,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.themobiledev.movie.R
 import dev.themobiledev.movie.components.OfflineBanner
 import dev.themobiledev.movie.domain.Movie
-import dev.themobiledev.movie.popularmovies.components.PopularMovieItem
+import dev.themobiledev.movie.presentation.popularmovies.components.PopularMovieItem
 import dev.themobiledev.movie.theme.MovieTheme
 import org.koin.compose.viewmodel.koinViewModel
 

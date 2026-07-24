@@ -3,6 +3,9 @@ package dev.themobiledev.movie.favorites
 import app.cash.turbine.test
 import dev.themobiledev.movie.domain.FavoritesRepository
 import dev.themobiledev.movie.domain.Movie
+import dev.themobiledev.movie.presentation.favorites.FavoritesEffect
+import dev.themobiledev.movie.presentation.favorites.FavoritesIntent
+import dev.themobiledev.movie.presentation.favorites.FavoritesViewModel
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every

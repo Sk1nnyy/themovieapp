@@ -1,4 +1,4 @@
-package dev.themobiledev.movie.favorites
+package dev.themobiledev.movie.ui.presentation.favorites
 
 import dev.themobiledev.movie.domain.Movie
 

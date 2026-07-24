@@ -1,4 +1,4 @@
-package dev.themobiledev.movie.moviedetails.components
+package dev.themobiledev.movie.ui.presentation.moviedetails.components
 
 import android.annotation.SuppressLint
 import android.view.LayoutInflater

@@ -6,6 +6,10 @@ import dev.themobiledev.movie.domain.FavoritesRepository
 import dev.themobiledev.movie.domain.Movie
 import dev.themobiledev.movie.domain.MoviesPage
 import dev.themobiledev.movie.domain.MoviesRepository
+import dev.themobiledev.movie.presentation.popularmovies.MovieFilter
+import dev.themobiledev.movie.presentation.popularmovies.PopularMoviesEffect
+import dev.themobiledev.movie.presentation.popularmovies.PopularMoviesIntent
+import dev.themobiledev.movie.presentation.popularmovies.PopularMoviesViewModel
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every

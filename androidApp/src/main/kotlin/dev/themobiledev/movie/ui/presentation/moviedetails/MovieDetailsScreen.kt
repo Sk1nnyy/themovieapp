@@ -1,4 +1,4 @@
-package dev.themobiledev.movie.moviedetails
+package dev.themobiledev.movie.ui.presentation.moviedetails
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedVisibilityScope
@@ -65,7 +65,7 @@ import dev.themobiledev.movie.R
 import dev.themobiledev.movie.components.OfflineBanner
 import dev.themobiledev.movie.domain.Genre
 import dev.themobiledev.movie.domain.MovieDetails
-import dev.themobiledev.movie.moviedetails.components.TrailerPlayer
+import dev.themobiledev.movie.presentation.moviedetails.components.TrailerPlayer
 import dev.themobiledev.movie.navigation.moviePosterSharedElementKey
 import dev.themobiledev.movie.navigation.movieTitleSharedElementKey
 import dev.themobiledev.movie.theme.FavoriteRed

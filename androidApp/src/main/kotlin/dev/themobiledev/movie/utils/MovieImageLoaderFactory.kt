@@ -1,4 +1,4 @@
-package dev.themobiledev.movie.image
+package dev.themobiledev.movie.utils
 
 import coil3.ImageLoader
 import coil3.PlatformContext

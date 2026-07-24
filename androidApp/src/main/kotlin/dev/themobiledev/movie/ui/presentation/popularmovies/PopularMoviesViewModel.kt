@@ -1,4 +1,4 @@
-package dev.themobiledev.movie.popularmovies
+package dev.themobiledev.movie.ui.presentation.popularmovies
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -6,13 +6,12 @@ import dev.themobiledev.movie.domain.FavoritesRepository
 import dev.themobiledev.movie.domain.Movie
 import dev.themobiledev.movie.domain.MoviesPage
 import dev.themobiledev.movie.domain.MoviesRepository
-import dev.themobiledev.movie.userFacingMessageRes
+import dev.themobiledev.movie.utils.userFacingMessageRes
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
