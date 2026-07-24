@@ -36,6 +36,14 @@ struct AppFeature {
                 }
                 return .none
 
+            case .popularMovies(.toggleFavoriteResponse(_, _, .success)),
+                 .popularMovies(.path(.element(id: _, action: .detail(.toggleFavoriteResponse(_, .success))))):
+                return .send(.favorites(.task))
+
+            case .favorites(.removeFavoriteResponse(.success)),
+                 .favorites(.path(.element(id: _, action: .detail(.toggleFavoriteResponse(_, .success))))):
+                return .send(.popularMovies(.refreshFavoriteIds))
+
             case .popularMovies, .favorites:
                 return .none
             }

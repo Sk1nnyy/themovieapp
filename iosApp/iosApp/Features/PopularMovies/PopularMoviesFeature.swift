@@ -8,6 +8,7 @@ struct PopularMoviesFeature {
         var isLoading = false
         var isLoadingMore = false
         var movies: [Movie] = []
+        var pagesByNumber: [Int: [Movie]] = [:]
         var currentPage = 0
         var totalPages = 1
         var errorMessage: String?
@@ -23,6 +24,7 @@ struct PopularMoviesFeature {
     enum Action: Equatable {
         case task
         case retryTapped
+        case refreshFavoriteIds
         case loadNextPageIfNeeded(currentItem: Movie)
         case setFilterSheetPresented(Bool)
         case filterSelected(MovieFilter)
@@ -49,18 +51,14 @@ struct PopularMoviesFeature {
             case .task:
                 return .merge(
                     loadMovies(page: 1, state: &state),
-                    .run { send in
-                        do {
-                            let ids = try await favoritesClient.getFavoriteIds()
-                            await send(.favoriteIdsResponse(.success(ids)))
-                        } catch {
-                            await send(.favoriteIdsResponse(.failure(error.equatable)))
-                        }
-                    }
+                    loadFavoriteIds()
                 )
 
             case .retryTapped:
                 return loadMovies(page: 1, state: &state)
+
+            case .refreshFavoriteIds:
+                return loadFavoriteIds()
 
             case let .loadNextPageIfNeeded(currentItem):
                 guard shouldLoadMore(after: currentItem, state: state) else { return .none }
@@ -78,6 +76,7 @@ struct PopularMoviesFeature {
                 state.selectedFilter = filter
                 state.isFilterSheetPresented = false
                 state.movies = []
+                state.pagesByNumber = [:]
                 state.currentPage = 0
                 state.totalPages = 1
                 return loadMovies(page: 1, state: &state)
@@ -122,11 +121,14 @@ struct PopularMoviesFeature {
                 state.isLoading = false
                 state.isLoadingMore = false
                 if page.page <= 1 {
-                    state.movies = page.movies
+                    state.pagesByNumber = [page.page: page.movies]
                 } else {
-                    let existingIds = Set(state.movies.map(\.id))
-                    state.movies += page.movies.filter { !existingIds.contains($0.id) }
+                    state.pagesByNumber[page.page] = page.movies
                 }
+                state.movies = state.pagesByNumber
+                    .sorted { $0.key < $1.key }
+                    .flatMap(\.value)
+                    .distinctByID()
                 state.currentPage = page.page
                 state.totalPages = page.totalPages
                 state.errorMessage = nil
@@ -159,6 +161,17 @@ struct PopularMoviesFeature {
             }
         }
         .forEach(\.path, action: \.path)
+    }
+
+    private func loadFavoriteIds() -> Effect<Action> {
+        .run { send in
+            do {
+                let ids = try await favoritesClient.getFavoriteIds()
+                await send(.favoriteIdsResponse(.success(ids)))
+            } catch {
+                await send(.favoriteIdsResponse(.failure(error.equatable)))
+            }
+        }
     }
 
     private func shouldLoadMore(after movie: Movie, state: State) -> Bool {
@@ -201,5 +214,12 @@ struct PopularMoviesFeature {
             }
         }
         .cancellable(id: CancelID.load, cancelInFlight: true)
+    }
+}
+
+private extension Sequence where Element == Movie {
+    func distinctByID() -> [Movie] {
+        var seenIDs = Set<Int64>()
+        return filter { seenIDs.insert($0.id).inserted }
     }
 }

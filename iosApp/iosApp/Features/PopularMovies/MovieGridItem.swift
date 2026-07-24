@@ -13,6 +13,7 @@ struct MovieGridItem: View {
                     posterImage
                     favoriteButton
                         .padding(6)
+                        .accessibilityHidden(true)
                 }
 
                 Text(movie.title)
@@ -25,6 +26,10 @@ struct MovieGridItem: View {
         }
         .buttonStyle(.plain)
         .accessibilityElement(children: .combine)
+        .accessibilityValue(isFavorite ? "Favorited" : "")
+        .accessibilityAction(named: Text(isFavorite ? "Remove from Favorites" : "Add to Favorites")) {
+            onFavoriteTap()
+        }
     }
 
     @ViewBuilder
@@ -65,6 +70,5 @@ struct MovieGridItem: View {
                 .background(.black.opacity(0.35), in: Circle())
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(isFavorite ? "Remove from favorites" : "Add to favorites")
     }
 }

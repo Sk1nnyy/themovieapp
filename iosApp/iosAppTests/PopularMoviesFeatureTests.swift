@@ -20,6 +20,7 @@ final class PopularMoviesFeatureTests: XCTestCase {
         }
         await store.receive(.moviesResponse(.success(page))) {
             $0.isLoading = false
+            $0.pagesByNumber = [1: page.movies]
             $0.movies = page.movies
             $0.currentPage = 1
             $0.totalPages = 3
@@ -42,6 +43,7 @@ final class PopularMoviesFeatureTests: XCTestCase {
         }
         await store.receive(.moviesResponse(.success(page))) {
             $0.isLoading = false
+            $0.pagesByNumber = [1: page.movies]
             $0.movies = page.movies
             $0.currentPage = 1
             $0.totalPages = 1
@@ -71,11 +73,13 @@ final class PopularMoviesFeatureTests: XCTestCase {
         }
         await store.receive(.moviesResponse(.success(cachedPage))) {
             $0.isLoading = false
+            $0.pagesByNumber = [1: cachedPage.movies]
             $0.movies = cachedPage.movies
             $0.currentPage = 1
             $0.totalPages = 1
         }
         await store.receive(.moviesResponse(.success(freshPage))) {
+            $0.pagesByNumber = [1: freshPage.movies]
             $0.movies = freshPage.movies
         }
     }
@@ -114,6 +118,7 @@ final class PopularMoviesFeatureTests: XCTestCase {
         }
         await store.receive(.moviesResponse(.success(upcomingPage))) {
             $0.isLoading = false
+            $0.pagesByNumber = [1: upcomingPage.movies]
             $0.movies = upcomingPage.movies
             $0.currentPage = 1
             $0.totalPages = 1
@@ -144,7 +149,12 @@ final class PopularMoviesFeatureTests: XCTestCase {
             totalResults: 30
         )
         let store = TestStore(
-            initialState: PopularMoviesFeature.State(movies: existing, currentPage: 1, totalPages: 3)
+            initialState: PopularMoviesFeature.State(
+                movies: existing,
+                pagesByNumber: [1: existing],
+                currentPage: 1,
+                totalPages: 3
+            )
         ) {
             PopularMoviesFeature()
         } withDependencies: {
@@ -156,6 +166,7 @@ final class PopularMoviesFeatureTests: XCTestCase {
         }
         await store.receive(.moviesResponse(.success(nextPage))) {
             $0.isLoadingMore = false
+            $0.pagesByNumber[2] = nextPage.movies
             $0.movies = existing + [.mock(id: 11)]
             $0.currentPage = 2
             $0.totalPages = 3
@@ -165,12 +176,64 @@ final class PopularMoviesFeatureTests: XCTestCase {
     func testLoadNextPageIfNeeded_notNearEnd_doesNothing() async {
         let existing = (1...10).map { Movie.mock(id: Int64($0)) }
         let store = TestStore(
-            initialState: PopularMoviesFeature.State(movies: existing, currentPage: 1, totalPages: 3)
+            initialState: PopularMoviesFeature.State(
+                movies: existing,
+                pagesByNumber: [1: existing],
+                currentPage: 1,
+                totalPages: 3
+            )
         ) {
             PopularMoviesFeature()
         }
 
         await store.send(.loadNextPageIfNeeded(currentItem: existing[0]))
+    }
+
+    func testLoadNextPageIfNeeded_staleThenFreshEmissionForSamePage_replacesRatherThanAccumulates() async {
+        let existing = [Movie.mock(id: 1), Movie.mock(id: 2)]
+        let stalePage = MoviesPage(movies: [.mock(id: 3), .mock(id: 4)], page: 2, totalPages: 2, totalResults: 4, isStale: true)
+        let freshPage = MoviesPage(movies: [.mock(id: 4), .mock(id: 5)], page: 2, totalPages: 2, totalResults: 4)
+        let staleGate = Gate()
+
+        let store = TestStore(
+            initialState: PopularMoviesFeature.State(
+                movies: existing,
+                pagesByNumber: [1: existing],
+                currentPage: 1,
+                totalPages: 2
+            )
+        ) {
+            PopularMoviesFeature()
+        } withDependencies: {
+            $0.moviesClient.getPopularMovies = { _, _ in
+                AsyncThrowingStream { continuation in
+                    continuation.yield(stalePage)
+                    Task {
+                        await staleGate.wait()
+                        continuation.yield(freshPage)
+                        continuation.finish()
+                    }
+                }
+            }
+        }
+
+        await store.send(.loadNextPageIfNeeded(currentItem: existing[1])) {
+            $0.isLoadingMore = true
+        }
+        await store.receive(.moviesResponse(.success(stalePage))) {
+            $0.isLoadingMore = false
+            $0.pagesByNumber[2] = stalePage.movies
+            $0.movies = existing + stalePage.movies
+            $0.currentPage = 2
+            $0.isOffline = true
+        }
+
+        await staleGate.open()
+        await store.receive(.moviesResponse(.success(freshPage))) {
+            $0.pagesByNumber[2] = freshPage.movies
+            $0.movies = existing + freshPage.movies
+            $0.isOffline = false
+        }
     }
 
     func testFavoriteTapped_togglesToFavoritedWhenNotAlreadyFavorited() async {
@@ -269,12 +332,14 @@ final class PopularMoviesFeatureTests: XCTestCase {
         }
         await store.receive(.moviesResponse(.success(stalePage))) {
             $0.isLoading = false
+            $0.pagesByNumber = [1: stalePage.movies]
             $0.movies = stalePage.movies
             $0.currentPage = 1
             $0.totalPages = 1
             $0.isOffline = true
         }
         await store.receive(.moviesResponse(.success(freshPage))) {
+            $0.pagesByNumber = [1: freshPage.movies]
             $0.movies = freshPage.movies
             $0.isOffline = false
         }
