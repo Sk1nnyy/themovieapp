@@ -122,8 +122,6 @@ class PopularMoviesViewModel(
             it.copy(
                 isLoading = false,
                 isLoadingMore = false,
-                // distinctBy guards against a duplicate LazyVerticalGrid key crash in the (rare)
-                // case the same movie id appears on two different pages after TMDB's listing shifts.
                 movies = pagesByNumber.values.flatten().distinctBy { movie -> movie.id },
                 currentPage = moviesPage.page,
                 totalPages = moviesPage.totalPages,

@@ -9,7 +9,7 @@ final class FavoritesFeatureTests: XCTestCase {
         let store = TestStore(initialState: FavoritesFeature.State()) {
             FavoritesFeature()
         } withDependencies: {
-            $0.favoritesClient.getFavorites = { favorites }
+            $0.favoritesClient.observeFavorites = { AsyncThrowingStream { $0.yield(favorites); $0.finish() } }
         }
 
         await store.send(.task) {
@@ -21,42 +21,39 @@ final class FavoritesFeatureTests: XCTestCase {
         }
     }
 
-    func testRemoveTapped_removesFavoriteFromRepository() async {
+    func testRemoveTapped_callsToggleFavoriteWithTrue() async {
         let movie = Movie.mock(id: 1)
+        let toggleCalls = CallRecorder<Bool>()
         let store = TestStore(
             initialState: FavoritesFeature.State(favorites: [movie])
         ) {
             FavoritesFeature()
         } withDependencies: {
-            $0.favoritesClient.toggleFavorite = { _, _ in }
+            $0.favoritesClient.toggleFavorite = { _, isFavorite in
+                await toggleCalls.record(isFavorite)
+            }
         }
 
-        await store.send(.removeTapped(movie)) {
-            $0.favorites = []
-        }
+        await store.send(.removeTapped(movie))
         await store.receive(.removeFavoriteResponse(.success(EquatableVoid())))
+
+        let values = await toggleCalls.values
+        XCTAssertEqual(values, [true])
     }
 
-    func testRemoveTapped_failure_resyncsFromSource() async {
+    func testRemoveTapped_failure_sendsFailureResponse() async {
         let movie = Movie.mock(id: 1)
         struct TestError: Error {}
-        let refreshed = [movie]
         let store = TestStore(
             initialState: FavoritesFeature.State(favorites: [movie])
         ) {
             FavoritesFeature()
         } withDependencies: {
             $0.favoritesClient.toggleFavorite = { _, _ in throw TestError() }
-            $0.favoritesClient.getFavorites = { refreshed }
         }
 
-        await store.send(.removeTapped(movie)) {
-            $0.favorites = []
-        }
+        await store.send(.removeTapped(movie))
         await store.receive(.removeFavoriteResponse(.failure(TestError().equatable)))
-        await store.receive(.favoritesResponse(.success(refreshed))) {
-            $0.favorites = refreshed
-        }
     }
 
     func testMovieTapped_pushesDetailOntoPath() async {
@@ -70,19 +67,34 @@ final class FavoritesFeatureTests: XCTestCase {
         }
     }
 
-    func testPathToggleFavoriteResponse_removesFromFavoritesList() async {
+    func testObserveFavorites_laterEmissionRemovesEntry() async {
         let movie = Movie.mock(id: 1)
-        let detailState = MovieDetailFeature.State(movie: movie, isFavorite: true)
-        let store = TestStore(
-            initialState: FavoritesFeature.State(favorites: [movie], path: StackState([.detail(detailState)]))
-        ) {
+        let (favoritesStream, favoritesContinuation) = AsyncThrowingStream<[Movie], Error>.makeStream()
+        let store = TestStore(initialState: FavoritesFeature.State()) {
             FavoritesFeature()
+        } withDependencies: {
+            $0.favoritesClient.observeFavorites = { favoritesStream }
         }
 
-        await store.send(
-            .path(.element(id: 0, action: .detail(.toggleFavoriteResponse(wasFavorite: true, result: .success(EquatableVoid())))))
-        ) {
+        let task = await store.send(.task) {
+            $0.isLoading = true
+        }
+
+        favoritesContinuation.yield([movie])
+        await store.receive(.favoritesResponse(.success([movie]))) {
+            $0.isLoading = false
+            $0.favorites = [movie]
+        }
+
+        // A favorite removed anywhere else (e.g. a detail screen pushed under this same list, or
+        // the Popular Movies tab) writes to the same underlying table this subscription observes,
+        // so the list picks it up without needing its own path- or tab-specific resync logic.
+        favoritesContinuation.yield([])
+        await store.receive(.favoritesResponse(.success([]))) {
             $0.favorites = []
         }
+
+        favoritesContinuation.finish()
+        await task.finish(timeout: .seconds(5))
     }
 }

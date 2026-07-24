@@ -4,9 +4,12 @@ import SharedLogic
 
 @DependencyClient
 struct FavoritesClient: Sendable {
-    var getFavoriteIds: @Sendable () async throws -> Set<Int64> = { [] }
-    var getFavorites: @Sendable () async throws -> [Movie] = { [] }
-    var isFavorite: @Sendable (_ movieId: Int64) async throws -> Bool
+    var observeFavoriteIds: @Sendable () -> AsyncThrowingStream<Set<Int64>, Error> =
+        { AsyncThrowingStream { $0.finish() } }
+    var observeFavorites: @Sendable () -> AsyncThrowingStream<[Movie], Error> =
+        { AsyncThrowingStream { $0.finish() } }
+    var observeIsFavorite: @Sendable (_ movieId: Int64) -> AsyncThrowingStream<Bool, Error> =
+        { _ in AsyncThrowingStream { $0.finish() } }
     var toggleFavorite: @Sendable (_ movie: Movie, _ isFavorite: Bool) async throws -> Void
 }
 
@@ -14,15 +17,14 @@ extension FavoritesClient: DependencyKey {
     static let liveValue: FavoritesClient = {
         let repository = IOSDependencies.shared.favoritesRepository
         return FavoritesClient(
-            getFavoriteIds: {
-                let ids = try await repository.getFavoriteIds()
-                return Set(ids.map(\.int64Value))
+            observeFavoriteIds: {
+                nativeStream(for: repository.observeFavoriteIds()) { ids in Set(ids.map(\.int64Value)) }
             },
-            getFavorites: {
-                try await repository.getFavorites().map(Movie.init)
+            observeFavorites: {
+                nativeStream(for: repository.observeFavorites()) { movies in movies.map(Movie.init) }
             },
-            isFavorite: { movieId in
-                try await repository.isFavorite(movieId: movieId).boolValue
+            observeIsFavorite: { movieId in
+                nativeStream(for: repository.observeIsFavorite(movieId: movieId), map: \.boolValue)
             },
             toggleFavorite: { movie, isFavorite in
                 try await repository.toggleFavorite(movie: movie.kotlin, isFavorite: isFavorite)

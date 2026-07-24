@@ -27,21 +27,32 @@ final class MovieDetailFeatureTests: XCTestCase {
     func testTask_emitsLoadingThenDetails() async {
         let movie = Movie.mock(id: 1)
         let movieDetails = details(id: 1)
+        let isFavoriteGate = Gate()
         let store = TestStore(initialState: MovieDetailFeature.State(movie: movie)) {
             MovieDetailFeature()
         } withDependencies: {
             $0.moviesClient.getMovieDetails = { _, _ in AsyncThrowingStream { $0.yield(movieDetails); $0.finish() } }
-            $0.favoritesClient.isFavorite = { _ in false }
+            $0.favoritesClient.observeIsFavorite = { _ in
+                AsyncThrowingStream { continuation in
+                    Task {
+                        await isFavoriteGate.wait()
+                        continuation.yield(false)
+                        continuation.finish()
+                    }
+                }
+            }
         }
 
         await store.send(.task) {
             $0.isLoading = true
         }
-        await store.receive(.isFavoriteResponse(.success(false)))
         await store.receive(.detailsResponse(.success(movieDetails))) {
             $0.isLoading = false
             $0.movieDetails = movieDetails
         }
+
+        await isFavoriteGate.open()
+        await store.receive(.isFavoriteResponse(.success(false)))
     }
 
     func testTask_failureSetsError() async {
@@ -49,21 +60,32 @@ final class MovieDetailFeatureTests: XCTestCase {
             var errorDescription: String? { "boom" }
         }
         let movie = Movie.mock(id: 1)
+        let isFavoriteGate = Gate()
         let store = TestStore(initialState: MovieDetailFeature.State(movie: movie)) {
             MovieDetailFeature()
         } withDependencies: {
             $0.moviesClient.getMovieDetails = { _, _ in AsyncThrowingStream { $0.finish(throwing: TestError()) } }
-            $0.favoritesClient.isFavorite = { _ in false }
+            $0.favoritesClient.observeIsFavorite = { _ in
+                AsyncThrowingStream { continuation in
+                    Task {
+                        await isFavoriteGate.wait()
+                        continuation.yield(false)
+                        continuation.finish()
+                    }
+                }
+            }
         }
 
         await store.send(.task) {
             $0.isLoading = true
         }
-        await store.receive(.isFavoriteResponse(.success(false)))
         await store.receive(.detailsResponse(.failure(TestError().equatable))) {
             $0.isLoading = false
             $0.errorMessage = "boom"
         }
+
+        await isFavoriteGate.open()
+        await store.receive(.isFavoriteResponse(.success(false)))
     }
 
     func testRetryTapped_reloadsSuccessfullyAfterFailure() async {
@@ -123,6 +145,7 @@ final class MovieDetailFeatureTests: XCTestCase {
         let movie = Movie.mock(id: 1)
         let staleDetails = details(id: 1, title: "Stale Title", isStale: true)
         let freshDetails = details(id: 1, title: "Fresh Title")
+        let isFavoriteGate = Gate()
         let store = TestStore(initialState: MovieDetailFeature.State(movie: movie)) {
             MovieDetailFeature()
         } withDependencies: {
@@ -133,13 +156,20 @@ final class MovieDetailFeatureTests: XCTestCase {
                     continuation.finish()
                 }
             }
-            $0.favoritesClient.isFavorite = { _ in false }
+            $0.favoritesClient.observeIsFavorite = { _ in
+                AsyncThrowingStream { continuation in
+                    Task {
+                        await isFavoriteGate.wait()
+                        continuation.yield(false)
+                        continuation.finish()
+                    }
+                }
+            }
         }
 
         await store.send(.task) {
             $0.isLoading = true
         }
-        await store.receive(.isFavoriteResponse(.success(false)))
         await store.receive(.detailsResponse(.success(staleDetails))) {
             $0.isLoading = false
             $0.movieDetails = staleDetails
@@ -149,23 +179,30 @@ final class MovieDetailFeatureTests: XCTestCase {
             $0.movieDetails = freshDetails
             $0.isOffline = false
         }
+
+        await isFavoriteGate.open()
+        await store.receive(.isFavoriteResponse(.success(false)))
     }
 
-    func testToggleFavoriteTapped_delegatesCurrentFavoriteStateToRepository() async {
+    func testToggleFavoriteTapped_callsToggleFavoriteWithCurrentState() async {
         let movie = Movie.mock(id: 1)
         let movieDetails = details(id: 1)
+        let toggleCalls = CallRecorder<Bool>()
         let store = TestStore(
             initialState: MovieDetailFeature.State(movie: movie, movieDetails: movieDetails, isFavorite: true)
         ) {
             MovieDetailFeature()
         } withDependencies: {
-            $0.favoritesClient.toggleFavorite = { _, _ in }
+            $0.favoritesClient.toggleFavorite = { _, wasFavorite in
+                await toggleCalls.record(wasFavorite)
+            }
         }
 
-        await store.send(.toggleFavoriteTapped) {
-            $0.isFavorite = false
-        }
-        await store.receive(.toggleFavoriteResponse(wasFavorite: true, result: .success(EquatableVoid())))
+        await store.send(.toggleFavoriteTapped)
+        await store.receive(.toggleFavoriteResponse(.success(EquatableVoid())))
+
+        let values = await toggleCalls.values
+        XCTAssertEqual(values, [true])
     }
 
     func testToggleFavoriteTapped_noOpsWhenDetailsNotLoaded() async {
@@ -177,7 +214,7 @@ final class MovieDetailFeatureTests: XCTestCase {
         await store.send(.toggleFavoriteTapped)
     }
 
-    func testToggleFavoriteTapped_revertsOptimisticUpdateOnFailure() async {
+    func testToggleFavoriteTapped_failure_sendsFailureResponse() async {
         struct TestError: Error {}
         let movie = Movie.mock(id: 1)
         let movieDetails = details(id: 1)
@@ -189,11 +226,35 @@ final class MovieDetailFeatureTests: XCTestCase {
             $0.favoritesClient.toggleFavorite = { _, _ in throw TestError() }
         }
 
-        await store.send(.toggleFavoriteTapped) {
+        await store.send(.toggleFavoriteTapped)
+        await store.receive(.toggleFavoriteResponse(.failure(TestError().equatable)))
+    }
+
+    func testObserveIsFavorite_laterEmissionUpdatesIsFavorite() async {
+        let movie = Movie.mock(id: 1)
+        let (isFavoriteStream, isFavoriteContinuation) = AsyncThrowingStream<Bool, Error>.makeStream()
+        let store = TestStore(initialState: MovieDetailFeature.State(movie: movie)) {
+            MovieDetailFeature()
+        } withDependencies: {
+            $0.moviesClient.getMovieDetails = { _, _ in AsyncThrowingStream { $0.finish() } }
+            $0.favoritesClient.observeIsFavorite = { _ in isFavoriteStream }
+        }
+
+        let task = await store.send(.task) {
+            $0.isLoading = true
+        }
+
+        isFavoriteContinuation.yield(false)
+        await store.receive(.isFavoriteResponse(.success(false)))
+
+        // Favoriting this movie from elsewhere (e.g. the Popular Movies grid) flows back through
+        // this same live subscription, tied to this screen's own StackState lifetime.
+        isFavoriteContinuation.yield(true)
+        await store.receive(.isFavoriteResponse(.success(true))) {
             $0.isFavorite = true
         }
-        await store.receive(.toggleFavoriteResponse(wasFavorite: false, result: .failure(TestError().equatable))) {
-            $0.isFavorite = false
-        }
+
+        isFavoriteContinuation.finish()
+        await task.finish(timeout: .seconds(5))
     }
 }

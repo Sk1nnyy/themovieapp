@@ -13,3 +13,13 @@ actor Gate {
         continuation = nil
     }
 }
+
+/// Thread-safe call recorder for asserting a `@Sendable` dependency stub was invoked with the
+/// expected arguments.
+actor CallRecorder<Value: Sendable> {
+    private(set) var values: [Value] = []
+
+    func record(_ value: Value) {
+        values.append(value)
+    }
+}

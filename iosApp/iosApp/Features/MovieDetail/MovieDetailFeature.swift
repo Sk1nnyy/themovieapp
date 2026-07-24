@@ -19,10 +19,10 @@ struct MovieDetailFeature {
 
         case detailsResponse(Result<MovieDetails, EquatableError>)
         case isFavoriteResponse(Result<Bool, EquatableError>)
-        case toggleFavoriteResponse(wasFavorite: Bool, result: Result<EquatableVoid, EquatableError>)
+        case toggleFavoriteResponse(Result<EquatableVoid, EquatableError>)
     }
 
-    private enum CancelID { case load }
+    private enum CancelID { case load, observeIsFavorite }
 
     @Dependency(\.moviesClient) var moviesClient
     @Dependency(\.favoritesClient) var favoritesClient
@@ -33,14 +33,7 @@ struct MovieDetailFeature {
             case .task:
                 return .merge(
                     loadDetails(state: &state),
-                    .run { [movieId = state.movie.id] send in
-                        do {
-                            let isFavorite = try await favoritesClient.isFavorite(movieId)
-                            await send(.isFavoriteResponse(.success(isFavorite)))
-                        } catch {
-                            await send(.isFavoriteResponse(.failure(error.equatable)))
-                        }
-                    }
+                    observeIsFavorite(movieId: state.movie.id)
                 )
 
             case .retryTapped:
@@ -49,13 +42,12 @@ struct MovieDetailFeature {
             case .toggleFavoriteTapped:
                 guard let details = state.movieDetails else { return .none }
                 let wasFavorite = state.isFavorite
-                state.isFavorite.toggle()
                 return .run { send in
                     do {
                         try await favoritesClient.toggleFavorite(details.asMovie, wasFavorite)
-                        await send(.toggleFavoriteResponse(wasFavorite: wasFavorite, result: .success(EquatableVoid())))
+                        await send(.toggleFavoriteResponse(.success(EquatableVoid())))
                     } catch {
-                        await send(.toggleFavoriteResponse(wasFavorite: wasFavorite, result: .failure(error.equatable)))
+                        await send(.toggleFavoriteResponse(.failure(error.equatable)))
                     }
                 }
 
@@ -78,14 +70,23 @@ struct MovieDetailFeature {
             case .isFavoriteResponse(.failure):
                 return .none
 
-            case let .toggleFavoriteResponse(wasFavorite, .failure):
-                state.isFavorite = wasFavorite
-                return .none
-
-            case .toggleFavoriteResponse(_, .success):
+            case .toggleFavoriteResponse:
                 return .none
             }
         }
+    }
+
+    private func observeIsFavorite(movieId: Int64) -> Effect<Action> {
+        .run { send in
+            do {
+                for try await isFavorite in favoritesClient.observeIsFavorite(movieId) {
+                    await send(.isFavoriteResponse(.success(isFavorite)))
+                }
+            } catch {
+                await send(.isFavoriteResponse(.failure(error.equatable)))
+            }
+        }
+        .cancellable(id: CancelID.observeIsFavorite, cancelInFlight: true)
     }
 
     private func loadDetails(state: inout State) -> Effect<Action> {

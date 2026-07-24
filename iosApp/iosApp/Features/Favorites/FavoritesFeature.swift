@@ -19,7 +19,7 @@ struct FavoritesFeature {
         case removeFavoriteResponse(Result<EquatableVoid, EquatableError>)
     }
 
-    private enum CancelID { case load }
+    private enum CancelID { case observeFavorites }
 
     @Dependency(\.favoritesClient) var favoritesClient
 
@@ -28,10 +28,9 @@ struct FavoritesFeature {
             switch action {
             case .task:
                 state.isLoading = state.favorites.isEmpty
-                return loadFavorites()
+                return observeFavorites()
 
             case let .removeTapped(movie):
-                state.favorites.removeAll { $0.id == movie.id }
                 return .run { send in
                     do {
                         try await favoritesClient.toggleFavorite(movie, true)
@@ -50,19 +49,11 @@ struct FavoritesFeature {
                 state.isLoading = false
                 return .none
 
-            case .removeFavoriteResponse(.success):
+            case .removeFavoriteResponse:
                 return .none
-
-            case .removeFavoriteResponse(.failure):
-                return loadFavorites()
 
             case let .movieTapped(movie):
                 state.path.append(.detail(MovieDetailFeature.State(movie: movie, isFavorite: true)))
-                return .none
-
-            case let .path(.element(id: id, action: .detail(.toggleFavoriteResponse(wasFavorite, .success)))):
-                guard case let .detail(detailState) = state.path[id: id], wasFavorite else { return .none }
-                state.favorites.removeAll { $0.id == detailState.movie.id }
                 return .none
 
             case .path:
@@ -72,15 +63,16 @@ struct FavoritesFeature {
         .forEach(\.path, action: \.path)
     }
 
-    private func loadFavorites() -> Effect<Action> {
+    private func observeFavorites() -> Effect<Action> {
         .run { send in
             do {
-                let favorites = try await favoritesClient.getFavorites()
-                await send(.favoritesResponse(.success(favorites)))
+                for try await favorites in favoritesClient.observeFavorites() {
+                    await send(.favoritesResponse(.success(favorites)))
+                }
             } catch {
                 await send(.favoritesResponse(.failure(error.equatable)))
             }
         }
-        .cancellable(id: CancelID.load, cancelInFlight: true)
+        .cancellable(id: CancelID.observeFavorites, cancelInFlight: true)
     }
 }

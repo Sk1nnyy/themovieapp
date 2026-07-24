@@ -24,7 +24,6 @@ struct PopularMoviesFeature {
     enum Action: Equatable {
         case task
         case retryTapped
-        case refreshFavoriteIds
         case loadNextPageIfNeeded(currentItem: Movie)
         case setFilterSheetPresented(Bool)
         case filterSelected(MovieFilter)
@@ -34,11 +33,12 @@ struct PopularMoviesFeature {
 
         case moviesResponse(Result<MoviesPage, EquatableError>)
         case favoriteIdsResponse(Result<Set<Int64>, EquatableError>)
-        case toggleFavoriteResponse(id: Int64, wasFavorite: Bool, result: Result<EquatableVoid, EquatableError>)
+        case toggleFavoriteResponse(Result<EquatableVoid, EquatableError>)
     }
 
     private enum CancelID: Hashable {
         case load
+        case observeFavorites
         case toggleFavorite(Int64)
     }
 
@@ -51,14 +51,11 @@ struct PopularMoviesFeature {
             case .task:
                 return .merge(
                     loadMovies(page: 1, state: &state),
-                    loadFavoriteIds()
+                    observeFavoriteIds()
                 )
 
             case .retryTapped:
                 return loadMovies(page: 1, state: &state)
-
-            case .refreshFavoriteIds:
-                return loadFavoriteIds()
 
             case let .loadNextPageIfNeeded(currentItem):
                 guard shouldLoadMore(after: currentItem, state: state) else { return .none }
@@ -83,18 +80,13 @@ struct PopularMoviesFeature {
 
             case let .favoriteTapped(movie):
                 let wasFavorite = state.favoriteIds.contains(movie.id)
-                if wasFavorite {
-                    state.favoriteIds.remove(movie.id)
-                } else {
-                    state.favoriteIds.insert(movie.id)
-                }
                 return .run { send in
                     do {
                         try await favoritesClient.toggleFavorite(movie, wasFavorite)
-                        await send(.toggleFavoriteResponse(id: movie.id, wasFavorite: wasFavorite, result: .success(EquatableVoid())))
+                        await send(.toggleFavoriteResponse(.success(EquatableVoid())))
                     } catch is CancellationError {
                     } catch {
-                        await send(.toggleFavoriteResponse(id: movie.id, wasFavorite: wasFavorite, result: .failure(error.equatable)))
+                        await send(.toggleFavoriteResponse(.failure(error.equatable)))
                     }
                 }
                 .cancellable(id: CancelID.toggleFavorite(movie.id), cancelInFlight: true)
@@ -103,15 +95,6 @@ struct PopularMoviesFeature {
                 state.path.append(
                     .detail(MovieDetailFeature.State(movie: movie, isFavorite: state.favoriteIds.contains(movie.id)))
                 )
-                return .none
-
-            case let .path(.element(id: id, action: .detail(.toggleFavoriteResponse(wasFavorite, .success)))):
-                guard case let .detail(detailState) = state.path[id: id] else { return .none }
-                if wasFavorite {
-                    state.favoriteIds.remove(detailState.movie.id)
-                } else {
-                    state.favoriteIds.insert(detailState.movie.id)
-                }
                 return .none
 
             case .path:
@@ -148,30 +131,24 @@ struct PopularMoviesFeature {
             case .favoriteIdsResponse(.failure):
                 return .none
 
-            case let .toggleFavoriteResponse(id, wasFavorite, .failure):
-                if wasFavorite {
-                    state.favoriteIds.insert(id)
-                } else {
-                    state.favoriteIds.remove(id)
-                }
-                return .none
-
-            case .toggleFavoriteResponse(_, _, .success):
+            case .toggleFavoriteResponse:
                 return .none
             }
         }
         .forEach(\.path, action: \.path)
     }
 
-    private func loadFavoriteIds() -> Effect<Action> {
+    private func observeFavoriteIds() -> Effect<Action> {
         .run { send in
             do {
-                let ids = try await favoritesClient.getFavoriteIds()
-                await send(.favoriteIdsResponse(.success(ids)))
+                for try await ids in favoritesClient.observeFavoriteIds() {
+                    await send(.favoriteIdsResponse(.success(ids)))
+                }
             } catch {
                 await send(.favoriteIdsResponse(.failure(error.equatable)))
             }
         }
+        .cancellable(id: CancelID.observeFavorites, cancelInFlight: true)
     }
 
     private func shouldLoadMore(after movie: Movie, state: State) -> Bool {

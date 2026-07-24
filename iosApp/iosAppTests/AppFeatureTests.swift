@@ -4,25 +4,17 @@ import XCTest
 
 @MainActor
 final class AppFeatureTests: XCTestCase {
-    func testTabSelected_favorites_triggersReload() async {
+    func testTabSelected_favorites_justUpdatesSelectedTab() async {
         let store = TestStore(initialState: AppFeature.State()) {
             AppFeature()
-        } withDependencies: {
-            $0.favoritesClient.getFavorites = { [] }
         }
 
         await store.send(.tabSelected(.favorites)) {
             $0.selectedTab = .favorites
         }
-        await store.receive(.favorites(.task)) {
-            $0.favorites.isLoading = true
-        }
-        await store.receive(.favorites(.favoritesResponse(.success([])))) {
-            $0.favorites.isLoading = false
-        }
     }
 
-    func testTabSelected_popularMovies_doesNotReload() async {
+    func testTabSelected_popularMovies_justUpdatesSelectedTab() async {
         let store = TestStore(
             initialState: AppFeature.State(selectedTab: .favorites)
         ) {
@@ -34,101 +26,42 @@ final class AppFeatureTests: XCTestCase {
         }
     }
 
-    func testFavoriteToggledFromPopularMoviesGrid_resyncsFavoritesTab() async {
+    func testBothTabsStayInSyncViaIndependentLiveSubscriptions() async {
         let movie = Movie.mock(id: 1)
+        let (idsStream, idsContinuation) = AsyncThrowingStream<Set<Int64>, Error>.makeStream()
+        let (favoritesStream, favoritesContinuation) = AsyncThrowingStream<[Movie], Error>.makeStream()
+
         let store = TestStore(initialState: AppFeature.State()) {
             AppFeature()
         } withDependencies: {
-            $0.favoritesClient.toggleFavorite = { _, _ in }
-            $0.favoritesClient.getFavorites = { [movie] }
+            $0.moviesClient.getPopularMovies = { _, _ in AsyncThrowingStream { $0.finish() } }
+            $0.favoritesClient.observeFavoriteIds = { idsStream }
+            $0.favoritesClient.observeFavorites = { favoritesStream }
         }
 
-        await store.send(.popularMovies(.favoriteTapped(movie))) {
-            $0.popularMovies.favoriteIds = [1]
+        let popularMoviesTask = await store.send(.popularMovies(.task)) {
+            $0.popularMovies.isLoading = true
         }
-        await store.receive(.popularMovies(.toggleFavoriteResponse(id: 1, wasFavorite: false, result: .success(EquatableVoid()))))
-        await store.receive(.favorites(.task)) {
+        let favoritesTask = await store.send(.favorites(.task)) {
             $0.favorites.isLoading = true
         }
+
+        // Both tabs are independently subscribed to the same underlying favorites table -
+        // AppFeature doesn't forward anything between them for a change to show up on both.
+        idsContinuation.yield([1])
+        await store.receive(.popularMovies(.favoriteIdsResponse(.success([1])))) {
+            $0.popularMovies.favoriteIds = [1]
+        }
+
+        favoritesContinuation.yield([movie])
         await store.receive(.favorites(.favoritesResponse(.success([movie])))) {
             $0.favorites.isLoading = false
             $0.favorites.favorites = [movie]
         }
-    }
 
-    func testFavoriteToggledFromPopularMoviesDetailPush_resyncsFavoritesTab() async {
-        let movie = Movie.mock(id: 1)
-        let detailState = MovieDetailFeature.State(movie: movie, isFavorite: false)
-        let store = TestStore(
-            initialState: AppFeature.State(
-                popularMovies: PopularMoviesFeature.State(path: StackState([.detail(detailState)]))
-            )
-        ) {
-            AppFeature()
-        } withDependencies: {
-            $0.favoritesClient.getFavorites = { [movie] }
-        }
-
-        await store.send(
-            .popularMovies(.path(.element(id: 0, action: .detail(.toggleFavoriteResponse(wasFavorite: false, result: .success(EquatableVoid()))))))
-        ) {
-            $0.popularMovies.favoriteIds = [1]
-        }
-        await store.receive(.favorites(.task)) {
-            $0.favorites.isLoading = true
-        }
-        await store.receive(.favorites(.favoritesResponse(.success([movie])))) {
-            $0.favorites.isLoading = false
-            $0.favorites.favorites = [movie]
-        }
-    }
-
-    func testFavoriteRemovedFromFavoritesTab_resyncsPopularMoviesFavoriteIds() async {
-        let movie = Movie.mock(id: 1)
-        let store = TestStore(
-            initialState: AppFeature.State(
-                popularMovies: PopularMoviesFeature.State(favoriteIds: [1]),
-                favorites: FavoritesFeature.State(favorites: [movie])
-            )
-        ) {
-            AppFeature()
-        } withDependencies: {
-            $0.favoritesClient.toggleFavorite = { _, _ in }
-            $0.favoritesClient.getFavoriteIds = { [] }
-        }
-
-        await store.send(.favorites(.removeTapped(movie))) {
-            $0.favorites.favorites = []
-        }
-        await store.receive(.favorites(.removeFavoriteResponse(.success(EquatableVoid()))))
-        await store.receive(.popularMovies(.refreshFavoriteIds))
-        await store.receive(.popularMovies(.favoriteIdsResponse(.success([])))) {
-            $0.popularMovies.favoriteIds = []
-        }
-    }
-
-    func testFavoriteToggledFromFavoritesDetailPush_resyncsPopularMoviesFavoriteIds() async {
-        let movie = Movie.mock(id: 1)
-        let detailState = MovieDetailFeature.State(movie: movie, isFavorite: true)
-        let store = TestStore(
-            initialState: AppFeature.State(
-                popularMovies: PopularMoviesFeature.State(favoriteIds: [1]),
-                favorites: FavoritesFeature.State(favorites: [movie], path: StackState([.detail(detailState)]))
-            )
-        ) {
-            AppFeature()
-        } withDependencies: {
-            $0.favoritesClient.getFavoriteIds = { [] }
-        }
-
-        await store.send(
-            .favorites(.path(.element(id: 0, action: .detail(.toggleFavoriteResponse(wasFavorite: true, result: .success(EquatableVoid()))))))
-        ) {
-            $0.favorites.favorites = []
-        }
-        await store.receive(.popularMovies(.refreshFavoriteIds))
-        await store.receive(.popularMovies(.favoriteIdsResponse(.success([])))) {
-            $0.popularMovies.favoriteIds = []
-        }
+        idsContinuation.finish()
+        favoritesContinuation.finish()
+        await popularMoviesTask.finish(timeout: .seconds(5))
+        await favoritesTask.finish(timeout: .seconds(5))
     }
 }

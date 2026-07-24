@@ -6,17 +6,23 @@ import XCTest
 final class PopularMoviesFeatureTests: XCTestCase {
     func testTask_emitsLoadingThenPopularMoviesAndFavorites() async {
         let page = MoviesPage(movies: [.mock(id: 1), .mock(id: 2)], page: 1, totalPages: 3, totalResults: 40)
+        let favoriteIdsGate = Gate()
         let store = TestStore(initialState: PopularMoviesFeature.State()) {
             PopularMoviesFeature()
         } withDependencies: {
             $0.moviesClient.getPopularMovies = { _, _ in AsyncThrowingStream { $0.yield(page); $0.finish() } }
-            $0.favoritesClient.getFavoriteIds = { [1] }
+            $0.favoritesClient.observeFavoriteIds = {
+                AsyncThrowingStream { continuation in
+                    Task {
+                        await favoriteIdsGate.wait()
+                        continuation.yield([1])
+                        continuation.finish()
+                    }
+                }
+            }
         }
         await store.send(.task) {
             $0.isLoading = true
-        }
-        await store.receive(.favoriteIdsResponse(.success([1]))) {
-            $0.favoriteIds = [1]
         }
         await store.receive(.moviesResponse(.success(page))) {
             $0.isLoading = false
@@ -24,6 +30,11 @@ final class PopularMoviesFeatureTests: XCTestCase {
             $0.movies = page.movies
             $0.currentPage = 1
             $0.totalPages = 3
+        }
+
+        await favoriteIdsGate.open()
+        await store.receive(.favoriteIdsResponse(.success([1]))) {
+            $0.favoriteIds = [1]
         }
     }
 
@@ -236,53 +247,55 @@ final class PopularMoviesFeatureTests: XCTestCase {
         }
     }
 
-    func testFavoriteTapped_togglesToFavoritedWhenNotAlreadyFavorited() async {
+    func testFavoriteTapped_whenNotFavorited_callsToggleFavoriteWithFalse() async {
         let movie = Movie.mock(id: 1)
+        let toggleCalls = CallRecorder<Bool>()
         let store = TestStore(initialState: PopularMoviesFeature.State()) {
             PopularMoviesFeature()
         } withDependencies: {
-            $0.favoritesClient.toggleFavorite = { _, _ in }
+            $0.favoritesClient.toggleFavorite = { _, wasFavorite in
+                await toggleCalls.record(wasFavorite)
+            }
         }
 
-        await store.send(.favoriteTapped(movie)) {
-            $0.favoriteIds = [1]
-        }
-        await store.receive(.toggleFavoriteResponse(id: 1, wasFavorite: false, result: .success(EquatableVoid())))
+        await store.send(.favoriteTapped(movie))
+        await store.receive(.toggleFavoriteResponse(.success(EquatableVoid())))
+
+        let values = await toggleCalls.values
+        XCTAssertEqual(values, [false])
     }
 
-    func testFavoriteTapped_togglesToNotFavoritedWhenAlreadyFavorited() async {
+    func testFavoriteTapped_whenAlreadyFavorited_callsToggleFavoriteWithTrue() async {
         let movie = Movie.mock(id: 1)
+        let toggleCalls = CallRecorder<Bool>()
         let store = TestStore(
             initialState: PopularMoviesFeature.State(favoriteIds: [1])
         ) {
             PopularMoviesFeature()
         } withDependencies: {
-            $0.favoritesClient.toggleFavorite = { _, _ in }
+            $0.favoritesClient.toggleFavorite = { _, wasFavorite in
+                await toggleCalls.record(wasFavorite)
+            }
         }
 
-        await store.send(.favoriteTapped(movie)) {
-            $0.favoriteIds = []
-        }
-        await store.receive(.toggleFavoriteResponse(id: 1, wasFavorite: true, result: .success(EquatableVoid())))
+        await store.send(.favoriteTapped(movie))
+        await store.receive(.toggleFavoriteResponse(.success(EquatableVoid())))
+
+        let values = await toggleCalls.values
+        XCTAssertEqual(values, [true])
     }
 
-    func testFavoriteTapped_revertsOptimisticUpdateOnFailure() async {
+    func testFavoriteTapped_failure_sendsFailureResponse() async {
         let movie = Movie.mock(id: 1)
         struct TestError: Error {}
-        let store = TestStore(
-            initialState: PopularMoviesFeature.State(favoriteIds: [1])
-        ) {
+        let store = TestStore(initialState: PopularMoviesFeature.State()) {
             PopularMoviesFeature()
         } withDependencies: {
             $0.favoritesClient.toggleFavorite = { _, _ in throw TestError() }
         }
 
-        await store.send(.favoriteTapped(movie)) {
-            $0.favoriteIds = []
-        }
-        await store.receive(.toggleFavoriteResponse(id: 1, wasFavorite: true, result: .failure(TestError().equatable))) {
-            $0.favoriteIds = [1]
-        }
+        await store.send(.favoriteTapped(movie))
+        await store.receive(.toggleFavoriteResponse(.failure(TestError().equatable)))
     }
 
     func testMoviesResponse_failureSetsErrorMessage() async {
@@ -345,22 +358,33 @@ final class PopularMoviesFeatureTests: XCTestCase {
         }
     }
 
-    func testPathToggleFavoriteResponse_syncsGridFavoriteIds() async {
-        let movie = Movie.mock(id: 1)
-        let detailState = MovieDetailFeature.State(movie: movie, isFavorite: false)
-        let store = TestStore(
-            initialState: PopularMoviesFeature.State(
-                favoriteIds: [],
-                path: StackState([.detail(detailState)])
-            )
-        ) {
+    func testObserveFavoriteIds_laterEmissionUpdatesFavoriteIds() async {
+        let (idsStream, idsContinuation) = AsyncThrowingStream<Set<Int64>, Error>.makeStream()
+        let store = TestStore(initialState: PopularMoviesFeature.State()) {
             PopularMoviesFeature()
+        } withDependencies: {
+            $0.moviesClient.getPopularMovies = { _, _ in AsyncThrowingStream { $0.finish() } }
+            $0.favoritesClient.observeFavoriteIds = { idsStream }
         }
 
-        await store.send(
-            .path(.element(id: 0, action: .detail(.toggleFavoriteResponse(wasFavorite: false, result: .success(EquatableVoid())))))
-        ) {
+        let task = await store.send(.task) {
+            $0.isLoading = true
+        }
+
+        idsContinuation.yield([1])
+        await store.receive(.favoriteIdsResponse(.success([1]))) {
             $0.favoriteIds = [1]
         }
+
+        // A favorite toggled anywhere else in the app (e.g. a detail screen pushed under the
+        // Favorites tab) writes to the same underlying table this subscription observes, so the
+        // grid picks it up without needing its own path- or tab-specific resync logic.
+        idsContinuation.yield([1, 2])
+        await store.receive(.favoriteIdsResponse(.success([1, 2]))) {
+            $0.favoriteIds = [1, 2]
+        }
+
+        idsContinuation.finish()
+        await task.finish(timeout: .seconds(5))
     }
 }
