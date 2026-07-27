@@ -50,9 +50,9 @@ class MoviesRepositoryImpl(
     override fun getMovieDetails(movieId: Long, forceRefresh: Boolean): Flow<Result<MovieDetails>> = flow {
         val cached = readCachedDetails(movieId)
         val fresh = cached != null && isFresh(cached.cachedAt)
-        if (cached != null) {
+        if (cached != null && !forceRefresh) {
             emit(Result.success(cached.details.copy(isStale = !fresh)))
-            if (fresh && !forceRefresh) return@flow
+            if (fresh) return@flow
         }
 
         moviesApi.getMovieDetails(movieId).fold(
@@ -76,9 +76,9 @@ class MoviesRepositoryImpl(
     ): Flow<Result<MoviesPage>> = flow {
         val cached = readCachedPage(category, page)
         val fresh = cached != null && isFresh(cached.cachedAt)
-        if (cached != null) {
+        if (cached != null && !forceRefresh) {
             emit(Result.success(cached.page.copy(isStale = !fresh)))
-            if (fresh && !forceRefresh) return@flow
+            if (fresh) return@flow
         }
 
         fetch().fold(

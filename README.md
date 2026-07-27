@@ -55,7 +55,6 @@ Favorites live in a separate SQLDelight table, observed reactively (`observeFavo
 - **Favorites and cache are unbounded** — the SQLDelight cache has a TTL but nothing evicts old rows, and favorites has no limit. On a long-lived install this grows without bound.
 - **No dependency-injected clock/time abstraction on iOS** — TTL freshness for the Kotlin cache is computed in `sharedLogic` (I can test that with an injected `Clock`), but the Swift side never needed its own clock since it only reads through the shared repository.
 - **No CI pipeline** — I've only run the test suites locally via Gradle/`xcodebuild`; there's no GitHub Actions/Fastlane config.
-- **Trailer playback has no language filter** — `MovieDetails.trailerKey` comes from TMDB's `videos` append-to-response; `bestTrailerKey()` filters to YouTube and prefers an official trailer, then any trailer, then a teaser, but `VideoDto` doesn't capture TMDB's `iso_639_1` field at all, so a movie with only non-English videos will still play one of those instead of showing "no trailer available".
 - **No accessibility pass beyond the basics** — I added content descriptions on key elements (e.g. the trailer player), and the Popular Movies grid card exposes its favorite toggle as a named custom accessibility action (since `.accessibilityElement(children: .combine)` would otherwise fold the nested button into the card and make it unreachable to VoiceOver), but I haven't done a systematic VoiceOver/TalkBack audit beyond that.
 
 ## Testing
